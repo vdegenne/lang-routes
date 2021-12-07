@@ -1564,7 +1564,7 @@ let LangRoutes = class LangRoutes extends s {
         this._text = localStorage.getItem('text') || 'edit this text and select some text';
     }
     firstUpdated() {
-        this._textarea.addEventListener('pointerup', e => {
+        this._textarea.addEventListener('touchend', e => {
             this._selected = getSelection();
             // presearchHanjaPage(this._selected)
         });

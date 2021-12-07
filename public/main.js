@@ -1568,6 +1568,7 @@ let LangRoutes = class LangRoutes extends s {
             this._selected = getSelection();
             // presearchHanjaPage(this._selected)
         });
+        this._textarea.addEventListener('selectstart', e => alert('select start !!!!'));
     }
     render() {
         return p `
@@ -1608,7 +1609,7 @@ LangRoutes.styles = [
     :host {
       display: flex;
       flex-direction: column;
-      height: 100%;
+      height: 80%;
       --mdc-theme-primary: black;
     }
     textarea {

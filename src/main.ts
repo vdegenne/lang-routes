@@ -27,6 +27,9 @@ export class LangRoutes extends LitElement {
       this._selected = getSelection()
       // presearchHanjaPage(this._selected)
     })
+    window.addEventListener('pointerup', e => {
+      this._selected = getSelection()
+    })
     this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
   }
 

@@ -23,11 +23,11 @@ export class LangRoutes extends LitElement {
   }
 
   firstUpdated() {
-    this._textarea.addEventListener('touchend', e => {
+    this._textarea.addEventListener('select', e => {
       this._selected = getSelection()
       // presearchHanjaPage(this._selected)
     })
-    // this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
+    this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
   }
 
   static styles = [

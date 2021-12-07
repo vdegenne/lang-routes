@@ -23,7 +23,7 @@ export class LangRoutes extends LitElement {
   }
 
   firstUpdated() {
-    this._textarea.addEventListener('mouseup', e => {
+    this._textarea.addEventListener('pointerup', e => {
       this._selected = getSelection()
       // presearchHanjaPage(this._selected)
     })

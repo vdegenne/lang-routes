@@ -2,6 +2,9 @@ import { css, html, LitElement } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import '@material/mwc-button'
 import { getSelection, googleImagesSearch, jishoSearch, naverHanjaSearch, naverJapSearch, presearchHanjaPage } from './util'
+import './quick-search'
+import { QuickSearch } from './quick-search'
+import './search-panel'
 
 @customElement('lang-routes')
 export class LangRoutes extends LitElement {
@@ -15,6 +18,8 @@ export class LangRoutes extends LitElement {
   private _selected = ''
 
   @query('textarea') _textarea!: HTMLTextAreaElement;
+  @query('#textContainer') _textContainer!: HTMLParagraphElement;
+  @query('quick-search') _quickSearch!: QuickSearch;
 
   constructor() {
     super()
@@ -23,14 +28,14 @@ export class LangRoutes extends LitElement {
   }
 
   firstUpdated() {
-    this._textarea.addEventListener('select', e => {
+    this._textContainer.addEventListener('mouseup', e => {
       this._selected = getSelection()
       // presearchHanjaPage(this._selected)
     })
-    window.addEventListener('pointerup', e => {
-      this._selected = getSelection()
-    })
-    this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
+    // window.addEventListener('pointerup', e => {
+    //   this._selected = getSelection()
+    // })
+    // this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
   }
 
   static styles = [
@@ -38,7 +43,7 @@ export class LangRoutes extends LitElement {
     :host {
       display: flex;
       flex-direction: column;
-      height: 80%;
+      height: 90%;
       --mdc-theme-primary: black;
     }
     textarea {
@@ -54,30 +59,22 @@ export class LangRoutes extends LitElement {
   render () {
     return html`
     <div id="topbar" style="text-align:right;margin-bottom: 5px;">
-      <mwc-button dense icon="lock" @click=${_ => this._locked = !this._locked} style="">lock</mwc-button>
+      <mwc-button dense icon="search" @click=${() => this._quickSearch.open()}>quick</mwc-button>
+      <mwc-button dense icon="lock" @click=${() => this._locked = !this._locked} style="">lock</mwc-button>
       <mwc-button dense icon="settings">settings</mwc-button>
     </div>
 
-    <textarea ?hide=${false} ?disabled=${this._locked} .value=${this._text} style="margin:0 6px 6px 0;flex:1;font-size:1.8em"
+    <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${this._text} style="margin:0 6px 6px 0;flex:1"
       @keyup=${e => this.onTextAreaChange()}></textarea>
-    <div ?hide=${true} style="flex:1">
+    <p ?hide=${!this._locked} style="flex:1;font-size:1.7em" id="textContainer">
       ${this._text}
-    </div>
+    </p>
 
     <div ?hide=${!this._selected} style="margin:10px 0;font-size:2em;margin-left:8px">${this._selected}</div>
 
-    <div ?hide=${!this._selected}>
-      <mwc-button outlined style="--mdc-theme-primary:white"
-        @click=${_ => jishoSearch(this._selected)}><img src="https://assets.jisho.org/assets/jisho-logo-v4@2x-7330091c079b9dd59601401b052b52e103978221c8fb6f5e22406d871fcc746a.png" width=42></mwc-button>
-      <mwc-button unelevated style="--mdc-theme-primary:#04cf5c"
-        @click=${_ => naverHanjaSearch(this._selected)}><span><b>Naver</b> 漢</span></mwc-button>
-      <mwc-button unelevated style="--mdc-theme-primary:#04cf5c"
-        @click=${_ => naverJapSearch(this._selected)}><span><b>Naver</b> あ</span></mwc-button>
-      <mwc-button style=""
-        @click=${_ => googleImagesSearch(this._selected)}>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Google_Images_2015_logo.svg/800px-Google_Images_2015_logo.svg.png" width=64>
-      </mwc-button>
-    </div>
+    <search-panel .query=${this._selected}></search-panel>
+
+    <quick-search></quick-search>
     `
   }
 

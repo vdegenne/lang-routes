@@ -29,7 +29,8 @@ export class LangRoutes extends LitElement {
 
   firstUpdated() {
     this._textContainer.addEventListener('mouseup', e => {
-      this._selected = getSelection()
+      if (getSelection())
+        this._selected = getSelection()
       // presearchHanjaPage(this._selected)
     })
     // window.addEventListener('pointerup', e => {
@@ -66,9 +67,9 @@ export class LangRoutes extends LitElement {
 
     <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${this._text} style="margin:0 6px 6px 0;flex:1"
       @keyup=${e => this.onTextAreaChange()}></textarea>
-    <p ?hide=${!this._locked} style="flex:1;font-size:1.7em" id="textContainer">
-      ${this._text}
-    </p>
+    <div ?hide=${!this._locked} style="flex:1;font-size:1.7em;overflow-y:scroll;margin-bottom:10px;" id="textContainer">
+      <span style="white-space:pre-wrap">${this._text}</span>
+    </div>
 
     <div ?hide=${!this._selected} style="margin:10px 0;font-size:2em;margin-left:8px">${this._selected}</div>
 

@@ -29,11 +29,12 @@ export class LangRoutes extends LitElement {
 
   firstUpdated() {
     const selectFunction = () => {
-      if (getSelection())
+      if (this._locked && getSelection() && !this._quickSearch._dialog.open)
         this._selected = getSelection()
     }
-    this._textContainer.addEventListener('mouseup', selectFunction)
-    this._textContainer.addEventListener('touchend', selectFunction)
+    setInterval(selectFunction, 500)
+    // this._textContainer.addEventListener('mouseup', selectFunction)
+    // this._textContainer.addEventListener('touchend', selectFunction)
     // window.addEventListener('pointerup', e => {
     //   this._selected = getSelection()
     // })

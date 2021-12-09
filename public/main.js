@@ -5817,8 +5817,11 @@ let LangRoutes = class LangRoutes extends s$1 {
     }
     firstUpdated() {
         const selectFunction = () => {
-            if (this._locked && getSelection() && !this._quickSearch._dialog.open)
-                this._selected = getSelection();
+            if (this._locked && !this._quickSearch._dialog.open) {
+                const selection = getSelection().trim();
+                if (selection)
+                    this._selected = selection;
+            }
         };
         setInterval(selectFunction, 500);
         // this._textContainer.addEventListener('mouseup', selectFunction)

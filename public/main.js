@@ -6250,7 +6250,7 @@ let LangRoutes = class LangRoutes extends s$1 {
     async load() {
         // Try to get the data remotely
         try {
-            this._documents = await (await fetch('/data.json')).json();
+            this._documents = await (await fetch('/data')).json();
         }
         catch (e) {
             this._documents = JSON.parse(localStorage.getItem('documents') || '[]');

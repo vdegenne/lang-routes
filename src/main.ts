@@ -219,7 +219,7 @@ export class LangRoutes extends LitElement {
   private async load () {
     // Try to get the data remotely
     try {
-      this._documents = await (await fetch('/data.json')).json()
+      this._documents = await (await fetch('/data')).json()
     } catch (e) {
       this._documents = JSON.parse(localStorage.getItem('documents') || '[]')
     }

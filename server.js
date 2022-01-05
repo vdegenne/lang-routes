@@ -2,7 +2,7 @@ const Koa = require('koa')
 const Router = require('koa-router')
 const statics = require('koa-static')
 const bodyParser = require('koa-body')
-const { writeFileSync } = require('fs')
+const { writeFileSync, readFileSync, existsSync } = require('fs')
 
 const app = new Koa
 const router = new Router
@@ -11,8 +11,19 @@ const router = new Router
 app.use(statics('public'))
 app.use(bodyParser())
 
+router.get('/data', function (ctx) {
+  let data
+  if (existsSync('data.json')) {
+    data = readFileSync('data.json')
+  }
+  else {
+    data = []
+  }
+  ctx.body = data
+})
+
 router.put('/data', function (ctx) {
-  writeFileSync('public/data.json', JSON.stringify(ctx.request.body))
+  writeFileSync('data.json', JSON.stringify(ctx.request.body))
   ctx.body = ''
 })
 

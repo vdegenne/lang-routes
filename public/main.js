@@ -6207,13 +6207,13 @@ let LangRoutes = class LangRoutes extends s$1 {
     `;
     }
     onTextAreaChange(e) {
-        e.target.value;
+        const value = e.target.value;
         if (this._textAreaDebouncer !== undefined) {
             clearTimeout(this._textAreaDebouncer);
             this._textAreaDebouncer = undefined;
         }
         this._textAreaDebouncer = setTimeout(() => {
-            this.currentDocument.content = e.target.value;
+            this.currentDocument.content = value;
             this.save();
         }, 1000);
     }

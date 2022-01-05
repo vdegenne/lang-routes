@@ -174,7 +174,7 @@ export class LangRoutes extends LitElement {
     }
 
     this._textAreaDebouncer = setTimeout(() => {
-      this.currentDocument!.content = e.target.value;
+      this.currentDocument!.content = value;
       this.save();
     }, 1000)
   }

@@ -1711,6 +1711,165 @@ IconButton = __decorate([
     n('mwc-icon-button')
 ], IconButton);
 
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/** @soyCompatible */
+class IconButtonToggleBase extends s$1 {
+    constructor() {
+        super(...arguments);
+        this.disabled = false;
+        this.onIcon = '';
+        this.offIcon = '';
+        this.on = false;
+        this.shouldRenderRipple = false;
+        this.rippleHandlers = new RippleHandlers(() => {
+            this.shouldRenderRipple = true;
+            return this.ripple;
+        });
+    }
+    handleClick() {
+        this.on = !this.on;
+        this.dispatchEvent(new CustomEvent('icon-button-toggle-change', { detail: { isOn: this.on }, bubbles: true }));
+    }
+    click() {
+        this.mdcRoot.focus();
+        this.mdcRoot.click();
+    }
+    focus() {
+        this.rippleHandlers.startFocus();
+        this.mdcRoot.focus();
+    }
+    blur() {
+        this.rippleHandlers.endFocus();
+        this.mdcRoot.blur();
+    }
+    /** @soyTemplate */
+    renderRipple() {
+        return this.shouldRenderRipple ? p `
+            <mwc-ripple
+                .disabled="${this.disabled}"
+                unbounded>
+            </mwc-ripple>` :
+            '';
+    }
+    /** @soyTemplate */
+    render() {
+        /** @classMap */
+        const classes = {
+            'mdc-icon-button--on': this.on,
+        };
+        const hasToggledAriaLabel = this.ariaLabelOn !== undefined && this.ariaLabelOff !== undefined;
+        const ariaPressedValue = hasToggledAriaLabel ? undefined : this.on;
+        const ariaLabelValue = hasToggledAriaLabel ?
+            (this.on ? this.ariaLabelOn : this.ariaLabelOff) :
+            this.ariaLabel;
+        return p `<button
+          class="mdc-icon-button mdc-icon-button--display-flex ${o(classes)}"
+          aria-pressed="${l$1(ariaPressedValue)}"
+          aria-label="${l$1(ariaLabelValue)}"
+          @click="${this.handleClick}"
+          ?disabled="${this.disabled}"
+          @focus="${this.handleRippleFocus}"
+          @blur="${this.handleRippleBlur}"
+          @mousedown="${this.handleRippleMouseDown}"
+          @mouseenter="${this.handleRippleMouseEnter}"
+          @mouseleave="${this.handleRippleMouseLeave}"
+          @touchstart="${this.handleRippleTouchStart}"
+          @touchend="${this.handleRippleDeactivate}"
+          @touchcancel="${this.handleRippleDeactivate}"
+        >${this.renderRipple()}
+        <span class="mdc-icon-button__icon"
+          ><slot name="offIcon"
+            ><i class="material-icons">${this.offIcon}</i
+          ></slot
+        ></span>
+        <span class="mdc-icon-button__icon mdc-icon-button__icon--on"
+          ><slot name="onIcon"
+            ><i class="material-icons">${this.onIcon}</i
+          ></slot
+        ></span>
+      </button>`;
+    }
+    handleRippleMouseDown(event) {
+        const onUp = () => {
+            window.removeEventListener('mouseup', onUp);
+            this.handleRippleDeactivate();
+        };
+        window.addEventListener('mouseup', onUp);
+        this.rippleHandlers.startPress(event);
+    }
+    handleRippleTouchStart(event) {
+        this.rippleHandlers.startPress(event);
+    }
+    handleRippleDeactivate() {
+        this.rippleHandlers.endPress();
+    }
+    handleRippleMouseEnter() {
+        this.rippleHandlers.startHover();
+    }
+    handleRippleMouseLeave() {
+        this.rippleHandlers.endHover();
+    }
+    handleRippleFocus() {
+        this.rippleHandlers.startFocus();
+    }
+    handleRippleBlur() {
+        this.rippleHandlers.endFocus();
+    }
+}
+__decorate([
+    i$2('.mdc-icon-button')
+], IconButtonToggleBase.prototype, "mdcRoot", void 0);
+__decorate([
+    ariaProperty,
+    e$3({ type: String, attribute: 'aria-label' })
+], IconButtonToggleBase.prototype, "ariaLabel", void 0);
+__decorate([
+    e$3({ type: Boolean, reflect: true })
+], IconButtonToggleBase.prototype, "disabled", void 0);
+__decorate([
+    e$3({ type: String })
+], IconButtonToggleBase.prototype, "onIcon", void 0);
+__decorate([
+    e$3({ type: String })
+], IconButtonToggleBase.prototype, "offIcon", void 0);
+__decorate([
+    e$3({ type: String })
+], IconButtonToggleBase.prototype, "ariaLabelOn", void 0);
+__decorate([
+    e$3({ type: String })
+], IconButtonToggleBase.prototype, "ariaLabelOff", void 0);
+__decorate([
+    e$3({ type: Boolean, reflect: true })
+], IconButtonToggleBase.prototype, "on", void 0);
+__decorate([
+    e$1('mwc-ripple')
+], IconButtonToggleBase.prototype, "ripple", void 0);
+__decorate([
+    t$1()
+], IconButtonToggleBase.prototype, "shouldRenderRipple", void 0);
+__decorate([
+    e$2({ passive: true })
+], IconButtonToggleBase.prototype, "handleRippleMouseDown", null);
+__decorate([
+    e$2({ passive: true })
+], IconButtonToggleBase.prototype, "handleRippleTouchStart", null);
+
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+let IconButtonToggle = class IconButtonToggle extends IconButtonToggleBase {
+};
+IconButtonToggle.styles = [styles$3];
+IconButtonToggle = __decorate([
+    n('mwc-icon-button-toggle')
+], IconButtonToggle);
+
 function getSelection() {
     var _a;
     var text = '';
@@ -5972,19 +6131,14 @@ QuickSearch = __decorate([
 let LangRoutes = class LangRoutes extends s$1 {
     constructor() {
         super();
-        this._locked = false;
+        this._locked = true;
         this._documents = [];
         this._selected = '';
         this._documents = JSON.parse(localStorage.getItem('documents') || '[]');
         window.addEventListener('hashchange', (e) => {
             this.requestUpdate();
-            console.log(e);
         });
     }
-    // private processLocation () {
-    //   if (this.currentDocument) {
-    //   }
-    // }
     get currentDocument() {
         if (window.location.hash.slice(1) === '')
             return undefined;
@@ -6005,6 +6159,11 @@ let LangRoutes = class LangRoutes extends s$1 {
         //   this._selected = getSelection()
         // })
         // this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter' && this._locked && this._selected !== '') {
+                this.shadowRoot.querySelector('search-panel').openFirstSearch();
+            }
+        });
     }
     render() {
         if (this.currentDocument === undefined) {
@@ -6028,8 +6187,7 @@ let LangRoutes = class LangRoutes extends s$1 {
             e.target.select(); }}
         @keyup=${e => this.onTitleKeyup(e)}>
       <mwc-icon-button icon="search" @click=${() => this._quickSearch.open()}></mwc-icon-button>
-      <mwc-icon-button icon="lock" @click=${() => this._locked = !this._locked}></mwc-icon-button>
-      <mwc-icon-button icon="settings"></mwc-icon-button>
+      <mwc-icon-button-toggle onIcon="lock" offIcon="lock_open" @click=${() => this._locked = !this._locked} style="color:${this._locked ? 'green' : 'red'}" ?on=${this._locked}></mwc-icon-button-toggle>
       <!-- <mwc-button dense icon="search" @click=${() => this._quickSearch.open()}>quick</mwc-button>
       <mwc-button dense icon="lock" @click=${() => this._locked = !this._locked} style="">lock</mwc-button>
       <mwc-button dense icon="settings">settings</mwc-button> -->
@@ -6037,11 +6195,11 @@ let LangRoutes = class LangRoutes extends s$1 {
 
     <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="flex:1"
       @keyup=${e => this.onTextAreaChange(e)}></textarea>
-    <div ?hide=${!this._locked} style="flex:1;font-size:1.7em;overflow-y:scroll" id="textContainer">
-      <span style="white-space:pre-wrap">${this._documents}</span>
+    <div ?hide=${!this._locked} style="flex:1;overflow-y:scroll" id="textContainer">
+      <span style="white-space:pre-wrap">${doc.content}</span>
     </div>
 
-    <div ?hide=${!this._selected} style="margin-bottom:10px;font-size:2em;padding-left:8px;color:white;background-color:grey">${this._selected}</div>
+    <input id="selectInput" ?hide=${!this._selected} value=${this._selected}>
 
     <search-panel .query=${this._selected}></search-panel>
 
@@ -6087,6 +6245,9 @@ LangRoutes.styles = [
       height: 90%;
       --mdc-theme-primary: black;
     }
+    [hide] {
+      display:none;
+    }
     .document {
       display: flex;
       align-items: center;
@@ -6117,8 +6278,19 @@ LangRoutes.styles = [
       font-family: Roboto;
     }
 
-    [hide] {
-      display:none;
+    #textContainer {
+      margin: 8px;
+    }
+
+    #selectInput {
+      margin-bottom: 10px;
+      padding: 8px;
+      /* padding-left: 8px; */
+      font-size: 2em;
+      background-color: grey;
+      color: white;
+      outline:none;
+      border: 0px;
     }
     `
 ];

@@ -2,16 +2,18 @@ import { css, html, LitElement } from 'lit'
 import { customElement, property as state, query } from 'lit/decorators.js'
 import '@material/mwc-button'
 import '@material/mwc-icon-button'
+import '@material/mwc-icon-button-toggle'
 import { getSelection, googleImagesSearch, jishoSearch, naverHanjaSearch, naverJapSearch, presearchHanjaPage } from './util'
 import './quick-search'
 import { QuickSearch } from './quick-search'
 import './search-panel'
 import { Document } from './types'
+import { SearchPanel } from './search-panel'
 
 @customElement('lang-routes')
 export class LangRoutes extends LitElement {
   @state()
-  private _locked = false;
+  private _locked = true;
 
   @state()
   private _documents: Document[] = []
@@ -28,18 +30,10 @@ export class LangRoutes extends LitElement {
 
     this._documents = JSON.parse(localStorage.getItem('documents') || '[]')
 
-
     window.addEventListener('hashchange', (e) => {
       this.requestUpdate()
-      console.log(e)
     })
   }
-
-  // private processLocation () {
-  //   if (this.currentDocument) {
-
-  //   }
-  // }
 
   public get currentDocument () {
     if (window.location.hash.slice(1) === '') return undefined
@@ -61,6 +55,12 @@ export class LangRoutes extends LitElement {
     //   this._selected = getSelection()
     // })
     // this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter' && this._locked && this._selected !== '') {
+        (this.shadowRoot!.querySelector('search-panel') as SearchPanel).openFirstSearch()
+      }
+    })
   }
 
   static styles = [
@@ -70,6 +70,9 @@ export class LangRoutes extends LitElement {
       flex-direction: column;
       height: 90%;
       --mdc-theme-primary: black;
+    }
+    [hide] {
+      display:none;
     }
     .document {
       display: flex;
@@ -101,8 +104,19 @@ export class LangRoutes extends LitElement {
       font-family: Roboto;
     }
 
-    [hide] {
-      display:none;
+    #textContainer {
+      margin: 8px;
+    }
+
+    #selectInput {
+      margin-bottom: 10px;
+      padding: 8px;
+      /* padding-left: 8px; */
+      font-size: 2em;
+      background-color: grey;
+      color: white;
+      outline:none;
+      border: 0px;
     }
     `
   ]
@@ -130,8 +144,7 @@ export class LangRoutes extends LitElement {
         @click=${e => { if (e.target.value === 'Untitled Document') e.target.select() }}
         @keyup=${e => this.onTitleKeyup(e)}>
       <mwc-icon-button icon="search" @click=${() => this._quickSearch.open()}></mwc-icon-button>
-      <mwc-icon-button icon="lock" @click=${() => this._locked = !this._locked}></mwc-icon-button>
-      <mwc-icon-button icon="settings"></mwc-icon-button>
+      <mwc-icon-button-toggle onIcon="lock" offIcon="lock_open" @click=${() => this._locked = !this._locked} style="color:${this._locked ? 'green': 'red'}" ?on=${this._locked}></mwc-icon-button-toggle>
       <!-- <mwc-button dense icon="search" @click=${() => this._quickSearch.open()}>quick</mwc-button>
       <mwc-button dense icon="lock" @click=${() => this._locked = !this._locked} style="">lock</mwc-button>
       <mwc-button dense icon="settings">settings</mwc-button> -->
@@ -139,11 +152,11 @@ export class LangRoutes extends LitElement {
 
     <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="flex:1"
       @keyup=${e => this.onTextAreaChange(e)}></textarea>
-    <div ?hide=${!this._locked} style="flex:1;font-size:1.7em;overflow-y:scroll" id="textContainer">
-      <span style="white-space:pre-wrap">${this._documents}</span>
+    <div ?hide=${!this._locked} style="flex:1;overflow-y:scroll" id="textContainer">
+      <span style="white-space:pre-wrap">${doc.content}</span>
     </div>
 
-    <div ?hide=${!this._selected} style="margin-bottom:10px;font-size:2em;padding-left:8px;color:white;background-color:grey">${this._selected}</div>
+    <input id="selectInput" ?hide=${!this._selected} value=${this._selected}>
 
     <search-panel .query=${this._selected}></search-panel>
 

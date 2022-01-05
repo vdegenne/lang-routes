@@ -34,3 +34,8 @@ export function googleImagesSearch (word: string) {
   if (word === '') return
   window.open(`https://www.google.com/search?q=${word}&sxsrf=ALeKk03OpIy5MDwB0ZOXkqgulfVCIk8WYw:1585268139694&source=lnms&tbm=isch&sa=X`, '_blank')
 }
+
+export function writtenChineseSearch (word: string) {
+  if (word === '') return
+  window.open(`https://dictionary.writtenchinese.com/#sk=${encodeURIComponent(word)}&svt=pinyin`)
+}

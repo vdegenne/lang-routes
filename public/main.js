@@ -1919,6 +1919,11 @@ function googleImagesSearch(word) {
         return;
     window.open(`https://www.google.com/search?q=${word}&sxsrf=ALeKk03OpIy5MDwB0ZOXkqgulfVCIk8WYw:1585268139694&source=lnms&tbm=isch&sa=X`, '_blank');
 }
+function writtenChineseSearch(word) {
+    if (word === '')
+        return;
+    window.open(`https://dictionary.writtenchinese.com/#sk=${encodeURIComponent(word)}&svt=pinyin`);
+}
 
 /**
  * @license
@@ -6089,6 +6094,10 @@ let SearchPanel = class SearchPanel extends s$1 {
         return p `
       <mwc-button outlined style="--mdc-theme-primary:white"
         @click=${() => jishoSearch(this.query)}><img src="https://assets.jisho.org/assets/jisho-logo-v4@2x-7330091c079b9dd59601401b052b52e103978221c8fb6f5e22406d871fcc746a.png" width=42></mwc-button>
+      <mwc-button outlined
+        @click=${() => writtenChineseSearch(this.query)}>
+        <img src="/img/writtenchinese.png" width="24">
+      </mwc-button>
       <mwc-button unelevated style="--mdc-theme-primary:#04cf5c"
         @click=${() => naverHanjaSearch(this.query)}><span><b>Naver</b> 漢</span></mwc-button>
       <mwc-button unelevated style="--mdc-theme-primary:#04cf5c"

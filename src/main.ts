@@ -167,28 +167,26 @@ export class LangRoutes extends LitElement {
 
   private _textAreaDebouncer?: NodeJS.Timeout;
   private onTextAreaChange(e: any) {
-    const value = e.target.value;
+    this.currentDocument!.content = e.target.value;
     if (this._textAreaDebouncer !== undefined) {
       clearTimeout(this._textAreaDebouncer)
       this._textAreaDebouncer = undefined
     }
 
     this._textAreaDebouncer = setTimeout(() => {
-      this.currentDocument!.content = value;
       this.save();
     }, 1000)
   }
 
   private _titleUpdateDebouncer?: NodeJS.Timeout;
   private onTitleKeyup(e: any) {
-    const value = e.target.value
+    this.currentDocument!.title = e.target.value;
     if (this._titleUpdateDebouncer !== undefined) {
       clearTimeout(this._titleUpdateDebouncer)
       this._titleUpdateDebouncer = undefined
     }
 
     this._titleUpdateDebouncer = setTimeout(() => {
-      this.currentDocument!.title = value;
       this.save()
     }, 1000)
   }

@@ -20,12 +20,20 @@ export class QuickSearch extends LitElement {
   render () {
     return html`
       <mwc-dialog>
-        <mwc-textfield placeholder="search" @keyup=${e => this._searchPanel.query = e.target.value}
+        <mwc-textfield type=search placeholder="search" @keyup=${e => this.onTextFieldKeyup(e)}
           dialogInitialFocus></mwc-textfield>
         <search-panel></search-panel>
         <mwc-button slot="secondaryAction" dialogAction="close">close</mwc-button>
       </mwc-dialog>
     `
+  }
+
+  private onTextFieldKeyup (e) {
+    if (e.key === 'Enter') {
+      this._searchPanel.openFirstSearch()
+      return;
+    }
+    this._searchPanel.query = e.target.value;
   }
 
   open () {

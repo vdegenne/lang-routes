@@ -4,6 +4,7 @@
     "@material/mwc-dialog": "^0.25.3",
     "@material/mwc-icon-button": "^0.25.3",
     "@material/mwc-icon-button-toggle": "^0.25.3",
+    "@material/mwc-slider": "^0.25.3",
     "@material/mwc-textfield": "^0.25.3",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-typescript": "^8.3.0",

@@ -10,6 +10,9 @@ import './search-panel'
 import { Document } from './types'
 import { SearchPanel } from './search-panel'
 import { live } from 'lit/directives/live.js'
+import './settings-dialog'
+import './global-declarations'
+
 
 @customElement('lang-routes')
 export class LangRoutes extends LitElement {
@@ -106,7 +109,7 @@ export class LangRoutes extends LitElement {
     }
 
     #textContainer {
-      margin: 8px;
+      margin: 8px 20px;
     }
 
     #selectInput {
@@ -122,15 +125,20 @@ export class LangRoutes extends LitElement {
     `
   ]
 
+  public loadDocument (document: Document) {
+    window.location.hash = document.id.toString()
+    this._locked = document.content !== ''
+  }
+
   render () {
     if (this.currentDocument === undefined) {
       return html`
       ${this._documents.map(d => {
         return html`<div class="document"
-          @click=${() => window.location.hash = d.id.toString()}><mwc-icon>description</mwc-icon><span>${d.title}</span></div>`
+          @click=${() => this.loadDocument(d)}><mwc-icon>description</mwc-icon><span>${d.title}</span></div>`
       })}
       <mwc-button unelevated icon="add"
-        @click=${() => this.onNewDocumentClick()}>new document</mwc-button>
+        @click=${() => this.createNewDocument()}>new document</mwc-button>
       `
     }
 
@@ -144,16 +152,20 @@ export class LangRoutes extends LitElement {
       <input style="flex:1;margin:0 6px;" .value=${live(doc.title)}
         @click=${e => { if (e.target.value === 'Untitled Document') e.target.select() }}
         @keyup=${e => this.onTitleKeyup(e)}>
+      <mwc-icon-button icon="note_add"
+        @click=${() => this.createNewDocument()}></mwc-icon-button>
       <mwc-icon-button icon="search" @click=${() => this._quickSearch.open()}></mwc-icon-button>
       <mwc-icon-button-toggle onIcon="lock" offIcon="lock_open" @click=${() => this._locked = !this._locked} style="color:${this._locked ? 'green': 'red'}" ?on=${this._locked}></mwc-icon-button-toggle>
+      <mwc-icon-button icon="settings"
+        @click=${() => window.settingsDialog.show()}></mwc-icon-button>
       <!-- <mwc-button dense icon="search" @click=${() => this._quickSearch.open()}>quick</mwc-button>
       <mwc-button dense icon="lock" @click=${() => this._locked = !this._locked} style="">lock</mwc-button>
       <mwc-button dense icon="settings">settings</mwc-button> -->
     </header>
 
     <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="flex:1"
-      @keyup=${e => this.onTextAreaChange(e)}></textarea>
-    <div ?hide=${!this._locked} style="flex:1;overflow-y:scroll" id="textContainer">
+      @keyup=${e => this.onTextAreaChange(e)} placeholder="empty"></textarea>
+    <div ?hide=${!this._locked} style="flex:1;overflow-y:scroll;font-size:${window.settingsDialog.fontSize}px" id="textContainer">
       <span style="white-space:pre-wrap">${doc.content}</span>
     </div>
 
@@ -191,7 +203,7 @@ export class LangRoutes extends LitElement {
     }, 1000)
   }
 
-  private onNewDocumentClick() {
+  private createNewDocument() {
     const doc: Document = {
       id: this.nextId,
       title: 'Untitled Document',
@@ -200,7 +212,7 @@ export class LangRoutes extends LitElement {
 
     this._documents.push(doc)
 
-    window.location.hash = doc.id.toString();
+    this.loadDocument(doc)
 
     this.save()
   }

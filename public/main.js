@@ -6134,7 +6134,7 @@ let LangRoutes = class LangRoutes extends s$1 {
         this._locked = true;
         this._documents = [];
         this._selected = '';
-        this._documents = JSON.parse(localStorage.getItem('documents') || '[]');
+        this.load();
         window.addEventListener('hashchange', (e) => {
             this.requestUpdate();
         });
@@ -6146,7 +6146,7 @@ let LangRoutes = class LangRoutes extends s$1 {
     }
     firstUpdated() {
         const selectFunction = () => {
-            if (this._locked && !this._quickSearch._dialog.open) {
+            if (this._locked && this.currentDocument && !this._quickSearch._dialog.open) {
                 const selection = getSelection().trim();
                 if (selection)
                     this._selected = selection;
@@ -6182,7 +6182,7 @@ let LangRoutes = class LangRoutes extends s$1 {
     <header id="topbar" style="display:flex;align-items:center">
       <mwc-icon-button icon="arrow_back"
         @click=${() => window.location.hash = ''}></mwc-icon-button>
-      <input style="flex:1;margin:0 6px;" value=${doc.title}
+      <input style="flex:1;margin:0 6px;" .value=${l(doc.title)}
         @click=${e => { if (e.target.value === 'Untitled Document')
             e.target.select(); }}
         @keyup=${e => this.onTitleKeyup(e)}>
@@ -6207,12 +6207,26 @@ let LangRoutes = class LangRoutes extends s$1 {
     `;
     }
     onTextAreaChange(e) {
-        this.currentDocument.content = e.target.value;
-        this.save();
+        e.target.value;
+        if (this._textAreaDebouncer !== undefined) {
+            clearTimeout(this._textAreaDebouncer);
+            this._textAreaDebouncer = undefined;
+        }
+        this._textAreaDebouncer = setTimeout(() => {
+            this.currentDocument.content = e.target.value;
+            this.save();
+        }, 1000);
     }
     onTitleKeyup(e) {
-        this.currentDocument.title = e.target.value;
-        this.save();
+        const value = e.target.value;
+        if (this._titleUpdateDebouncer !== undefined) {
+            clearTimeout(this._titleUpdateDebouncer);
+            this._titleUpdateDebouncer = undefined;
+        }
+        this._titleUpdateDebouncer = setTimeout(() => {
+            this.currentDocument.title = value;
+            this.save();
+        }, 1000);
     }
     onNewDocumentClick() {
         const doc = {
@@ -6233,7 +6247,26 @@ let LangRoutes = class LangRoutes extends s$1 {
             id++;
         return id;
     }
+    async load() {
+        // Try to get the data remotely
+        try {
+            this._documents = await (await fetch('/data.json')).json();
+        }
+        catch (e) {
+            this._documents = JSON.parse(localStorage.getItem('documents') || '[]');
+        }
+    }
     save() {
+        // Try to save the data remotely
+        try {
+            fetch('/data', {
+                method: 'PUT',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify(this._documents)
+            });
+        }
+        catch (e) { }
+        // Also save locally in any case
         localStorage.setItem('documents', JSON.stringify(this._documents));
     }
 };

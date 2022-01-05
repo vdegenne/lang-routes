@@ -9,6 +9,7 @@ import { QuickSearch } from './quick-search'
 import './search-panel'
 import { Document } from './types'
 import { SearchPanel } from './search-panel'
+import { live } from 'lit/directives/live.js'
 
 @customElement('lang-routes')
 export class LangRoutes extends LitElement {
@@ -28,7 +29,7 @@ export class LangRoutes extends LitElement {
   constructor() {
     super()
 
-    this._documents = JSON.parse(localStorage.getItem('documents') || '[]')
+    this.load()
 
     window.addEventListener('hashchange', (e) => {
       this.requestUpdate()
@@ -42,7 +43,7 @@ export class LangRoutes extends LitElement {
 
   firstUpdated() {
     const selectFunction = () => {
-      if (this._locked && !this._quickSearch._dialog.open) {
+      if (this._locked && this.currentDocument && !this._quickSearch._dialog.open) {
         const selection = getSelection().trim()
         if (selection)
           this._selected = selection
@@ -140,7 +141,7 @@ export class LangRoutes extends LitElement {
     <header id="topbar" style="display:flex;align-items:center">
       <mwc-icon-button icon="arrow_back"
         @click=${() => window.location.hash = ''}></mwc-icon-button>
-      <input style="flex:1;margin:0 6px;" value=${doc.title}
+      <input style="flex:1;margin:0 6px;" .value=${live(doc.title)}
         @click=${e => { if (e.target.value === 'Untitled Document') e.target.select() }}
         @keyup=${e => this.onTitleKeyup(e)}>
       <mwc-icon-button icon="search" @click=${() => this._quickSearch.open()}></mwc-icon-button>
@@ -164,14 +165,32 @@ export class LangRoutes extends LitElement {
     `
   }
 
+  private _textAreaDebouncer?: NodeJS.Timeout;
   private onTextAreaChange(e: any) {
-    this.currentDocument!.content = e.target.value;
-    this.save();
+    const value = e.target.value;
+    if (this._textAreaDebouncer !== undefined) {
+      clearTimeout(this._textAreaDebouncer)
+      this._textAreaDebouncer = undefined
+    }
+
+    this._textAreaDebouncer = setTimeout(() => {
+      this.currentDocument!.content = e.target.value;
+      this.save();
+    }, 1000)
   }
 
+  private _titleUpdateDebouncer?: NodeJS.Timeout;
   private onTitleKeyup(e: any) {
-    this.currentDocument!.title = e.target.value;
-    this.save()
+    const value = e.target.value
+    if (this._titleUpdateDebouncer !== undefined) {
+      clearTimeout(this._titleUpdateDebouncer)
+      this._titleUpdateDebouncer = undefined
+    }
+
+    this._titleUpdateDebouncer = setTimeout(() => {
+      this.currentDocument!.title = value;
+      this.save()
+    }, 1000)
   }
 
   private onNewDocumentClick() {
@@ -197,7 +216,26 @@ export class LangRoutes extends LitElement {
     return id;
   }
 
+  private async load () {
+    // Try to get the data remotely
+    try {
+      this._documents = await (await fetch('/data.json')).json()
+    } catch (e) {
+      this._documents = JSON.parse(localStorage.getItem('documents') || '[]')
+    }
+  }
+
   private save () {
+    // Try to save the data remotely
+    try {
+      fetch('/data', {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(this._documents)
+      })
+    }
+    catch (e) {}
+    // Also save locally in any case
     localStorage.setItem('documents', JSON.stringify(this._documents))
   }
 

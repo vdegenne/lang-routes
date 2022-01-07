@@ -1922,7 +1922,12 @@ function googleImagesSearch(word) {
 function writtenChineseSearch(word) {
     if (word === '')
         return;
-    window.open(`https://dictionary.writtenchinese.com/#sk=${encodeURIComponent(word)}&svt=pinyin`);
+    window.open(`https://dictionary.writtenchinese.com/#sk=${encodeURIComponent(word)}&svt=pinyin`, '_blank');
+}
+function mdbgSearch(word) {
+    if (!word)
+        return;
+    window.open(`https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=${encodeURIComponent(word)}`, '_blank');
 }
 
 /**
@@ -6094,15 +6099,20 @@ let SearchPanel = class SearchPanel extends s$1 {
         return p `
       <mwc-button outlined style="--mdc-theme-primary:white"
         @click=${() => jishoSearch(this.query)}><img src="https://assets.jisho.org/assets/jisho-logo-v4@2x-7330091c079b9dd59601401b052b52e103978221c8fb6f5e22406d871fcc746a.png" width=42></mwc-button>
-      <mwc-button outlined
+      <mwc-icon-button outlined
         @click=${() => writtenChineseSearch(this.query)}>
         <img src="/img/writtenchinese.png" width="24">
-      </mwc-button>
-      <mwc-button unelevated style="--mdc-theme-primary:#04cf5c"
-        @click=${() => naverHanjaSearch(this.query)}><span><b>Naver</b> 漢</span></mwc-button>
-      <mwc-button unelevated style="--mdc-theme-primary:#04cf5c"
-        @click=${() => naverJapSearch(this.query)}><span><b>Naver</b> あ</span></mwc-button>
-      <mwc-button style=""
+      </mwc-icon-button>
+      <mwc-icon-button><img src="/img/mdbg.jpg" @click=${() => mdbgSearch(this.query)}></mwc-icon-button>
+      <!-- <mwc-button unelevated style="--mdc-theme-primary:#04cf5c"
+        @click=${() => naverHanjaSearch(this.query)}><span><b>Naver</b> 漢</span></mwc-button> -->
+      <mwc-icon-button style="background-color:#04cf5c;color:white;border-radius:30px"
+        @click=${() => naverHanjaSearch(this.query)}>漢</mwc-icon-button>
+      <mwc-icon-button style="background-color:#04cf5c;color:white;border-radius:30px"
+        @click=${() => naverJapSearch(this.query)}>あ</mwc-icon-button>
+      <!-- <mwc-button unelevated style="--mdc-theme-primary:#04cf5c"
+        @click=${() => naverJapSearch(this.query)}><span><b>Naver</b> あ</span></mwc-button> -->
+      <mwc-button outlined style=""
         @click=${() => googleImagesSearch(this.query)}>
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Google_Images_2015_logo.svg/800px-Google_Images_2015_logo.svg.png" width=64>
       </mwc-button>
@@ -6112,6 +6122,16 @@ let SearchPanel = class SearchPanel extends s$1 {
         this.shadowRoot.querySelector('mwc-button').click();
     }
 };
+SearchPanel.styles = r$2 `
+  :host {
+    display: flex;
+    align-items: center;
+    /* background-color: grey; */
+  }
+  mwc-icon-button, mwc-button {
+    margin: 0 3px;
+  }
+  `;
 __decorate([
     e$3()
 ], SearchPanel.prototype, "query", void 0);
@@ -7996,7 +8016,7 @@ let LangRoutes = class LangRoutes extends s$1 {
     <header id="topbar" style="display:flex;align-items:center">
       <mwc-icon-button icon="arrow_back"
         @click=${() => window.location.hash = ''}></mwc-icon-button>
-      <input style="flex:1;margin:0 6px;" .value=${l(doc.title)}
+      <input .value=${l(doc.title)} style="flex:1"
         @click=${e => { if (e.target.value === 'Untitled Document')
             e.target.select(); }}
         @keyup=${e => this.onTitleKeyup(e)}>
@@ -8011,9 +8031,9 @@ let LangRoutes = class LangRoutes extends s$1 {
       <mwc-button dense icon="settings">settings</mwc-button> -->
     </header>
 
-    <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="flex:1"
+    <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="font-size:${window.settingsDialog.fontSize}px"
       @keyup=${e => this.onTextAreaChange(e)} placeholder="empty"></textarea>
-    <div ?hide=${!this._locked} style="flex:1;overflow-y:scroll;font-size:${window.settingsDialog.fontSize}px" id="textContainer">
+    <div ?hide=${!this._locked} style="overflow-y:scroll;font-size:${window.settingsDialog.fontSize}px" id="textContainer">
       <span style="white-space:pre-wrap">${doc.content}</span>
     </div>
 
@@ -8091,7 +8111,9 @@ LangRoutes.styles = [
     :host {
       display: flex;
       flex-direction: column;
-      height: 90%;
+      /* align-items: center; */
+      width:100%;
+      height: 80%;
       --mdc-theme-primary: black;
     }
     [hide] {
@@ -8121,14 +8143,20 @@ LangRoutes.styles = [
       border-radius: 1px;
     }
     textarea {
+      flex: 1;
+      width: calc(100% - 16px);
+      box-sizing: border-box;
       margin: 0 8px 4px;
-      padding: 4px;
       resize: vertical;
       font-family: Roboto;
     }
 
     #textContainer {
-      margin: 8px 20px;
+      flex:1;
+      width: calc(100% - 20px);
+      box-sizing: border-box;
+      margin: 8px 0 0 20px;
+      padding: 6px;
     }
 
     #selectInput {

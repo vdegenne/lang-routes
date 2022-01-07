@@ -37,5 +37,10 @@ export function googleImagesSearch (word: string) {
 
 export function writtenChineseSearch (word: string) {
   if (word === '') return
-  window.open(`https://dictionary.writtenchinese.com/#sk=${encodeURIComponent(word)}&svt=pinyin`)
+  window.open(`https://dictionary.writtenchinese.com/#sk=${encodeURIComponent(word)}&svt=pinyin`, '_blank')
+}
+
+export function mdbgSearch (word: string) {
+  if (!word) return
+  window.open(`https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=${encodeURIComponent(word)}`, '_blank')
 }

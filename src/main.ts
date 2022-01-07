@@ -72,7 +72,9 @@ export class LangRoutes extends LitElement {
     :host {
       display: flex;
       flex-direction: column;
-      height: 90%;
+      /* align-items: center; */
+      width:100%;
+      height: 80%;
       --mdc-theme-primary: black;
     }
     [hide] {
@@ -102,14 +104,20 @@ export class LangRoutes extends LitElement {
       border-radius: 1px;
     }
     textarea {
+      flex: 1;
+      width: calc(100% - 16px);
+      box-sizing: border-box;
       margin: 0 8px 4px;
-      padding: 4px;
       resize: vertical;
       font-family: Roboto;
     }
 
     #textContainer {
-      margin: 8px 20px;
+      flex:1;
+      width: calc(100% - 20px);
+      box-sizing: border-box;
+      margin: 8px 0 0 20px;
+      padding: 6px;
     }
 
     #selectInput {
@@ -149,7 +157,7 @@ export class LangRoutes extends LitElement {
     <header id="topbar" style="display:flex;align-items:center">
       <mwc-icon-button icon="arrow_back"
         @click=${() => window.location.hash = ''}></mwc-icon-button>
-      <input style="flex:1;margin:0 6px;" .value=${live(doc.title)}
+      <input .value=${live(doc.title)} style="flex:1"
         @click=${e => { if (e.target.value === 'Untitled Document') e.target.select() }}
         @keyup=${e => this.onTitleKeyup(e)}>
       <mwc-icon-button icon="note_add"
@@ -163,9 +171,9 @@ export class LangRoutes extends LitElement {
       <mwc-button dense icon="settings">settings</mwc-button> -->
     </header>
 
-    <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="flex:1"
+    <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="font-size:${window.settingsDialog.fontSize}px"
       @keyup=${e => this.onTextAreaChange(e)} placeholder="empty"></textarea>
-    <div ?hide=${!this._locked} style="flex:1;overflow-y:scroll;font-size:${window.settingsDialog.fontSize}px" id="textContainer">
+    <div ?hide=${!this._locked} style="overflow-y:scroll;font-size:${window.settingsDialog.fontSize}px" id="textContainer">
       <span style="white-space:pre-wrap">${doc.content}</span>
     </div>
 

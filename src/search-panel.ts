@@ -11,8 +11,10 @@ export class SearchPanel extends LitElement {
   static styles = css`
   :host {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     /* background-color: grey; */
+    padding: 6px;
   }
   mwc-icon-button, mwc-button {
     margin: 0 3px;

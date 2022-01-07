@@ -73,8 +73,8 @@ export class LangRoutes extends LitElement {
       display: flex;
       flex-direction: column;
       /* align-items: center; */
-      width:100%;
-      height: 80%;
+      /* width:-webkit-fill-available; */
+      height: 85%;
       --mdc-theme-primary: black;
     }
     [hide] {
@@ -91,6 +91,10 @@ export class LangRoutes extends LitElement {
       margin-right: 5px;
     }
 
+    header {
+      display: flex;
+      justify-content: space-between;
+    }
     header input {
       padding: 6px;
       border: 1px solid transparent;
@@ -105,19 +109,18 @@ export class LangRoutes extends LitElement {
     }
     textarea {
       flex: 1;
-      width: calc(100% - 16px);
-      box-sizing: border-box;
-      margin: 0 8px 4px;
+      padding: 6px;
+      margin: 6px;
       resize: vertical;
       font-family: Roboto;
+      /* background-color: grey; */
     }
 
     #textContainer {
       flex:1;
-      width: calc(100% - 20px);
-      box-sizing: border-box;
-      margin: 8px 0 0 20px;
-      padding: 6px;
+      padding: 12px 0 12px 12px;
+      border: 1px solid #00000000;
+      /* background-color: grey; */
     }
 
     #selectInput {
@@ -154,18 +157,22 @@ export class LangRoutes extends LitElement {
 
     /* If there is a selected document (from the hash) */
     return html`
-    <header id="topbar" style="display:flex;align-items:center">
-      <mwc-icon-button icon="arrow_back"
-        @click=${() => window.location.hash = ''}></mwc-icon-button>
-      <input .value=${live(doc.title)} style="flex:1"
-        @click=${e => { if (e.target.value === 'Untitled Document') e.target.select() }}
-        @keyup=${e => this.onTitleKeyup(e)}>
-      <mwc-icon-button icon="note_add"
-        @click=${() => this.createNewDocument()}></mwc-icon-button>
-      <mwc-icon-button icon="search" @click=${() => this._quickSearch.open()}></mwc-icon-button>
-      <mwc-icon-button-toggle onIcon="lock" offIcon="lock_open" @click=${() => this._locked = !this._locked} style="color:${this._locked ? 'green': 'red'}" ?on=${this._locked}></mwc-icon-button-toggle>
-      <mwc-icon-button icon="settings"
-        @click=${() => window.settingsDialog.show()}></mwc-icon-button>
+    <header id="topbar">
+      <div style="display:flex;align-items:center;flex:1">
+        <mwc-icon-button icon="arrow_back"
+          @click=${() => window.location.hash = ''}></mwc-icon-button>
+        <input .value=${live(doc.title)} style="max-width:134px;"
+          @click=${e => { if (e.target.value === 'Untitled Document') e.target.select() }}
+          @keyup=${e => this.onTitleKeyup(e)}>
+      </div>
+      <div style="display:flex">
+        <mwc-icon-button icon="note_add"
+          @click=${() => this.createNewDocument()}></mwc-icon-button>
+        <mwc-icon-button icon="search" @click=${() => this._quickSearch.open()}></mwc-icon-button>
+        <mwc-icon-button-toggle onIcon="lock" offIcon="lock_open" @click=${() => {this._locked = !this._locked; if (!this._locked) { setTimeout(() => this._textarea.focus(), 100) }}} style="color:${this._locked ? 'green': 'red'}" ?on=${this._locked}></mwc-icon-button-toggle>
+        <mwc-icon-button icon="settings"
+          @click=${() => window.settingsDialog.show()}></mwc-icon-button>
+      </div>
       <!-- <mwc-button dense icon="search" @click=${() => this._quickSearch.open()}>quick</mwc-button>
       <mwc-button dense icon="lock" @click=${() => this._locked = !this._locked} style="">lock</mwc-button>
       <mwc-button dense icon="settings">settings</mwc-button> -->
@@ -179,7 +186,7 @@ export class LangRoutes extends LitElement {
 
     <input id="selectInput" ?hide=${!this._selected} value=${this._selected}>
 
-    <search-panel .query=${this._selected}></search-panel>
+    <search-panel></search-panel>
 
     <quick-search></quick-search>
     `

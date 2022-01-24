@@ -17,7 +17,18 @@
       }
     </style>
     <lang-routes id=app></lang-routes>
+    <strokes-dialog id=strokesDialog></strokes-dialog>
+    <mwc-snackbar id=snackbar></mwc-snackbar>
+
     <settings-dialog id="settingsDialog"></settings-dialog>
     <script type=module src="./main.js"></script>
+
+    <script>
+      window.toast = function (message, timeoutMs = 4000) {
+        snackbar.labelText = message;
+        snackbar.timeoutMs = timeoutMs;
+        snackbar.show()
+      }
+    </script>
   </body>
 </html>

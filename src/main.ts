@@ -28,6 +28,7 @@ export class LangRoutes extends LitElement {
   @query('textarea') _textarea!: HTMLTextAreaElement;
   @query('#textContainer') _textContainer!: HTMLParagraphElement;
   @query('quick-search') _quickSearch!: QuickSearch;
+  @query('search-panel') searchPanel!: SearchPanel;
 
   constructor() {
     super()
@@ -118,7 +119,7 @@ export class LangRoutes extends LitElement {
 
     #textContainer {
       flex:1;
-      padding: 12px 0 12px 12px;
+      padding: 12px 0 12px 18px;
       border: 1px solid #00000000;
       /* background-color: grey; */
     }
@@ -184,9 +185,10 @@ export class LangRoutes extends LitElement {
       <span style="white-space:pre-wrap">${doc.content}</span>
     </div>
 
-    <input id="selectInput" ?hide=${!this._selected} value=${this._selected}>
+    <input id="selectInput" ?hide=${!this._selected} .value=${live(this._selected)}
+      @keyup=${(e) => { this.searchPanel.query = e.target.value }}>
 
-    <search-panel></search-panel>
+    <search-panel .query=${live(this._selected)}></search-panel>
 
     <quick-search></quick-search>
     `

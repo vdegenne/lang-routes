@@ -24,6 +24,10 @@ export function naverHanjaSearch (word: string) {
   if (word === '') return
   window.open(`https://hanja.dict.naver.com/#/search?query=${encodeURIComponent(word)}`, '_blank')
 }
+export function naverKoreanSearch (word: string) {
+  if (word === '') return
+  window.open(`https://ko.dict.naver.com/#/search?query=${encodeURIComponent(word)}`, '_blank')
+}
 
 export function jishoSearch (word: string) {
   if (word === '') return
@@ -43,4 +47,16 @@ export function writtenChineseSearch (word: string) {
 export function mdbgSearch (word: string) {
   if (!word) return
   window.open(`https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=${encodeURIComponent(word)}`, '_blank')
+}
+
+export function googleTranslateSearch (word:string) {
+  if (!word) return
+  window.open(`https://translate.google.com/?sl=auto&text=${encodeURIComponent(word)}&op=translate`, '_blank')
+}
+
+
+
+
+export function isKanji(char:string) {
+  return !!char.match(/([\u4E00-\u9FAF\u3040-\u3096\u30A1-\u30FA\uFF66-\uFF9D\u31F0-\u31FF])+/);
 }

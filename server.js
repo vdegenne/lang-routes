@@ -8,7 +8,7 @@ const app = new Koa
 const router = new Router
 
 
-app.use(statics('public'))
+app.use(statics('docs'))
 app.use(bodyParser())
 
 router.get('/data', function (ctx) {

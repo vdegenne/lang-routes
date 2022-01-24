@@ -120,7 +120,7 @@ export class LangRoutes extends LitElement {
     #textContainer {
       flex:1;
       padding: 12px 0 12px 18px;
-      border: 1px solid #00000000;
+      border: 1px solid #e0e0e0;
       /* background-color: grey; */
     }
 

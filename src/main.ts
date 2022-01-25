@@ -3,7 +3,7 @@ import { customElement, property as state, query } from 'lit/decorators.js'
 import '@material/mwc-button'
 import '@material/mwc-icon-button'
 import '@material/mwc-icon-button-toggle'
-import { getSelection, googleImagesSearch, jishoSearch, naverHanjaSearch, naverJapSearch, presearchHanjaPage } from './util'
+import { getSelection, jishoSearch, naverHanjaSearch, naverJapSearch, presearchHanjaPage } from './util'
 import './quick-search'
 import { QuickSearch } from './quick-search'
 import './search-panel'
@@ -12,6 +12,7 @@ import { SearchPanel } from './search-panel'
 import { live } from 'lit/directives/live.js'
 import './settings-dialog'
 import './global-declarations'
+import { isFullJapanese, isJapanese } from 'asian-regexps'
 
 
 @customElement('lang-routes')
@@ -49,8 +50,9 @@ export class LangRoutes extends LitElement {
     const selectFunction = () => {
       if (this._locked && this.currentDocument && !this._quickSearch._dialog.open) {
         const selection = getSelection().trim()
-        if (selection)
+        if (selection) {
           this._selected = selection
+        }
       }
     }
     setInterval(selectFunction, 500)

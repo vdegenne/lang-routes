@@ -2,7 +2,7 @@ import { customElement, property } from 'lit/decorators.js';
 import '@material/mwc-button'
 import { googleImagesSearch, googleTranslateSearch, isKanji, jishoSearch, mdbgSearch, naverHanjaSearch, naverJapSearch, naverKoreanSearch, writtenChineseSearch } from './util';
 import { css, html, LitElement } from 'lit';
-import { isChinese, isJapanese } from 'asian-regexps';
+import { isFullChinese, isFullJapanese } from 'asian-regexps';
 
 @customElement('search-panel')
 export class SearchPanel extends LitElement {
@@ -63,11 +63,18 @@ export class SearchPanel extends LitElement {
       </mwc-icon-button>
 
       <mwc-icon-button icon="brush" @click=${() => {
-        if (!isChinese(this.query)) {
+        if (!isFullChinese(this.query)) {
           window.toast('This is not a Chinese or Japanese character')
           return;
         }
         window.strokesDialog.open(this.query)}}></mwc-icon-button>
+
+      <mwc-icon-button icon="volume_up"
+        @click=${() => {
+          if (isFullJapanese(this.query)) {
+            (new Audio(`https://assiets.vdegenne.com/data/japanese/audio/${this.query}.mp3`)).play()
+          }
+        }}></mwc-icon-button>
     `
   }
 

@@ -56,7 +56,10 @@ export function googleTranslateSearch (word:string) {
 
 
 
-
+// export function isJapanese(text: string) {
+//   const japaneseRegExp = /^([\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]+)$/;
+//   return !!text.match(japaneseRegExp);
+// }
 export function isKanji(char:string) {
-  return !!char.match(/([\u4E00-\u9FAF\u3040-\u3096\u30A1-\u30FA\uFF66-\uFF9D\u31F0-\u31FF])+/);
+  return !!char.match(/^([\u4E00-\u9FAF\u3040-\u3096\u30A1-\u30FA\uFF66-\uFF9D\u31F0-\u31FF]+)$/);
 }

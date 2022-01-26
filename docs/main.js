@@ -6140,8 +6140,8 @@ TextField = __decorate([
 
 var chineseRegStringExp = '[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]';
 var japaneseRegStringExp = '[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]';
-var chineseFullRegExp = new RegExp("^(".concat(chineseRegStringExp, "+)$"));
-var japaneseFullRegExp = new RegExp("^(".concat(japaneseRegStringExp, "+)$"));
+var chineseFullRegExp = new RegExp("^(".concat(chineseRegStringExp, ")+$"), 'g');
+var japaneseFullRegExp = new RegExp("^(".concat(japaneseRegStringExp, ")+$"), 'g');
 var isFullChinese = function (input) { return !!input.match(chineseFullRegExp); };
 var isFullJapanese = function (input) { return !!input.match(japaneseFullRegExp); };
 
@@ -10906,6 +10906,10 @@ let SearchPanel = class SearchPanel extends s$1 {
       <mwc-select @selected=${(e) => { e.target.value = 'chinese'; }} value="chinese" style="max-width:115px"
           naturalMenuWidth fixedMenuPosition>
         <mwc-list-item style="display:none" value="chinese">Hanzi</mwc-list-item>
+        <mwc-list-item graphic="icon" @click=${() => { mdbgSearch(this.query); }}>
+          <img slot="graphic" src="./img/mdbg.ico">
+          <span>MDBG</span>
+        </mwc-list-item>
         <mwc-list-item graphic="icon" @click=${() => { writtenChineseSearch(this.query); }}>
           <img src="./img/writtenchinese.png" slot="graphic">
           <span>WrittenChinese</span>
@@ -10913,10 +10917,6 @@ let SearchPanel = class SearchPanel extends s$1 {
         <mwc-list-item graphic="icon" @click=${() => { naverHanjaSearch(this.query); }}>
           <img src="./img/naver.ico" slot="graphic">
           <span>Naver (Hanja)</span>
-        </mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { mdbgSearch(this.query); }}>
-          <img slot="graphic" src="./img/mdbg.ico">
-          <span>MDBG</span>
         </mwc-list-item>
         <mwc-list-item graphic="icon"
           @click=${() => {
@@ -21708,7 +21708,7 @@ LangRoutes.styles = [
       padding: 8px;
       /* padding-left: 8px; */
       font-size: 2em;
-      background-color: grey;
+      background-color: black;
       color: white;
       outline:none;
       border: 0px;

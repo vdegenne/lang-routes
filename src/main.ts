@@ -131,7 +131,7 @@ export class LangRoutes extends LitElement {
       padding: 8px;
       /* padding-left: 8px; */
       font-size: 2em;
-      background-color: grey;
+      background-color: black;
       color: white;
       outline:none;
       border: 0px;

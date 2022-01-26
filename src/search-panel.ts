@@ -2,7 +2,7 @@ import { customElement, property } from 'lit/decorators.js';
 import '@material/mwc-button'
 import { googleImagesSearch, googleTranslateSearch, isKanji, jishoSearch, mdbgSearch, naverHanjaSearch, naverJapSearch, naverKoreanSearch, writtenChineseSearch } from './util';
 import { css, html, LitElement } from 'lit';
-import { isFullChinese, isFullJapanese } from 'asian-regexps';
+import { chineseFullRegExp, isFullChinese, isFullJapanese } from 'asian-regexps';
 import '@material/mwc-select'
 import { Select } from '@material/mwc-select';
 
@@ -82,6 +82,10 @@ export class SearchPanel extends LitElement {
       <mwc-select @selected=${(e) => { e.target.value = 'chinese'}} value="chinese" style="max-width:115px"
           naturalMenuWidth fixedMenuPosition>
         <mwc-list-item style="display:none" value="chinese">Hanzi</mwc-list-item>
+        <mwc-list-item graphic="icon" @click=${() => { mdbgSearch(this.query)}}>
+          <img slot="graphic" src="./img/mdbg.ico">
+          <span>MDBG</span>
+        </mwc-list-item>
         <mwc-list-item graphic="icon" @click=${() => { writtenChineseSearch(this.query) }}>
           <img src="./img/writtenchinese.png" slot="graphic">
           <span>WrittenChinese</span>
@@ -89,10 +93,6 @@ export class SearchPanel extends LitElement {
         <mwc-list-item graphic="icon" @click=${() => { naverHanjaSearch(this.query) }}>
           <img src="./img/naver.ico" slot="graphic">
           <span>Naver (Hanja)</span>
-        </mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { mdbgSearch(this.query)}}>
-          <img slot="graphic" src="./img/mdbg.ico">
-          <span>MDBG</span>
         </mwc-list-item>
         <mwc-list-item graphic="icon"
           @click=${() => {

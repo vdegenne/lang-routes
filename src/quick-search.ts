@@ -8,12 +8,14 @@ import { Dialog } from '@material/mwc-dialog'
 import './search-panel'
 import { SearchPanel } from './search-panel';
 import { TextField } from '@material/mwc-textfield';
+import html2canvas from 'html2canvas'
 
 @customElement('quick-search')
 export class QuickSearch extends LitElement {
   @query('mwc-textfield') textfield!: TextField;
   @query('mwc-dialog') _dialog!: Dialog;
   @query('search-panel') _searchPanel!: SearchPanel;
+  @query('#history') historyBox!: HTMLDivElement;
 
   @state() private query = '';
 
@@ -31,9 +33,16 @@ export class QuickSearch extends LitElement {
   #history .query {
     background-color: #e0e0e0;
     padding: 3px 7px;
-    margin: 0 5px;
+    margin: 3px;
     cursor: pointer;
     border-radius: 4px;
+  }
+  .query[selected] {
+    background-color: #ffee58 !important;
+    color: black;
+  }
+  [hide] {
+    display: none;
   }
   `
 
@@ -42,8 +51,7 @@ export class QuickSearch extends LitElement {
 
     window.addEventListener('searched', (e: Event) => {
       this.history = [...new Set([(e as CustomEvent).detail.query].concat(this.history))]
-      localStorage.setItem('lang-routes:history', JSON.stringify(this.history))
-      this.requestUpdate()
+      this.saveHistory()
     })
   }
 
@@ -59,10 +67,19 @@ export class QuickSearch extends LitElement {
             @click=${() => { this.onCloseIconClick() }}></mwc-icon-button>
         </div>
         <search-panel .query=${this.query}></search-panel>
-        <p style="font-weight:bold">History</p>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px">
+          <p style="font-weight:bold">History</p>
+          <div style="flex:1"></div>
+          <mwc-icon-button icon="delete"
+              ?hide=${!this.query || !this.history.includes(this.query)}
+              @click=${() => { this.history.splice(this.history.indexOf(this.query), 1); this.saveHistory() }}></mwc-icon-button>
+          <mwc-icon-button icon="download" @click=${() => { this.downloadHistory() }}></mwc-icon-button>
+        </div>
+
         <div id=history>
           ${this.history.map((q) => {
-            return html`<span class=query @click=${() => { this.query = q }}>${q}</span>`
+            return html`<span class=query @click=${() => { this.query = q }} ?selected=${this.query === q}>${q}</span>`
           })}
         </div>
         <mwc-button outlined slot="secondaryAction" dialogAction="close">close</mwc-button>
@@ -71,7 +88,8 @@ export class QuickSearch extends LitElement {
   }
 
   private onCloseIconClick() {
-    this.textfield.value = ''
+    this.query = ''
+    // this.textfield.value = ''
     this.textfield.focus()
   }
 
@@ -86,5 +104,18 @@ export class QuickSearch extends LitElement {
 
   open () {
     this._dialog.show()
+  }
+
+  async downloadHistory () {
+    const canvas = await html2canvas(this.historyBox)
+    const anchor = document.createElement('a')
+    anchor.href = canvas.toDataURL()
+    anchor.download = 'history.png'
+    anchor.click()
+  }
+
+  saveHistory () {
+    localStorage.setItem('lang-routes:history', JSON.stringify(this.history))
+    this.requestUpdate()
   }
 }

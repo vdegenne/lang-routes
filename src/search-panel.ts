@@ -4,6 +4,7 @@ import { googleImagesSearch, googleTranslateSearch, isKanji, jishoSearch, mdbgSe
 import { css, html, LitElement } from 'lit';
 import { isFullChinese, isFullJapanese } from 'asian-regexps';
 import '@material/mwc-select'
+import { Select } from '@material/mwc-select';
 
 @customElement('search-panel')
 export class SearchPanel extends LitElement {
@@ -147,6 +148,25 @@ export class SearchPanel extends LitElement {
         window.strokesDialog.open(this.query)
       }}></mwc-icon-button> -->
     `
+  }
+
+  protected firstUpdated(_changedProperties: Map<string | number | symbol, unknown>): void {
+    [...this.shadowRoot!.querySelectorAll<Select>('mwc-select')].forEach((el) => {
+      let _openDebouncer
+      el.addEventListener('mouseover', (e) => {
+        if (_openDebouncer) {
+          clearTimeout(_openDebouncer)
+          _openDebouncer = undefined
+        }
+        // @ts-ignore
+        _openDebouncer = setTimeout(() => el.menuOpen = true, 400)
+      })
+      el.addEventListener('mouseleave', (e) => {
+        clearTimeout(_openDebouncer)
+        // @ts-ignore
+        el.menuOpen = false
+      })
+    })
   }
 
   public openFirstSearch () {

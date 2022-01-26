@@ -10973,6 +10973,24 @@ let SearchPanel = class SearchPanel extends s$1 {
         }}></mwc-icon-button> -->
     `;
     }
+    firstUpdated(_changedProperties) {
+        [...this.shadowRoot.querySelectorAll('mwc-select')].forEach((el) => {
+            let _openDebouncer;
+            el.addEventListener('mouseover', (e) => {
+                if (_openDebouncer) {
+                    clearTimeout(_openDebouncer);
+                    _openDebouncer = undefined;
+                }
+                // @ts-ignore
+                _openDebouncer = setTimeout(() => el.menuOpen = true, 400);
+            });
+            el.addEventListener('mouseleave', (e) => {
+                clearTimeout(_openDebouncer);
+                // @ts-ignore
+                el.menuOpen = false;
+            });
+        });
+    }
     openFirstSearch() {
         this.shadowRoot.querySelector('mwc-button').click();
     }

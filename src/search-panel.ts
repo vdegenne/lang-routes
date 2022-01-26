@@ -40,7 +40,7 @@ export class SearchPanel extends LitElement {
   render () {
     return html`
       <mwc-select @selected=${(e) => { e.target.value = 'japanese' }} value="japanese" style="max-width:135px"
-          naturalMenuWidth>
+          naturalMenuWidth fixedMenuPosition>
         <mwc-list-item style="display:none" value="japanese">Japanese</mwc-list-item>
         <mwc-list-item graphic="icon" @click=${() => { jishoSearch(this.query) }}>
           <img src="./img/jisho.ico" slot="graphic">
@@ -80,7 +80,7 @@ export class SearchPanel extends LitElement {
       </mwc-icon-button> -->
 
       <mwc-select @selected=${(e) => { e.target.value = 'chinese'}} value="chinese" style="max-width:115px"
-          naturalMenuWidth>
+          naturalMenuWidth fixedMenuPosition>
         <mwc-list-item style="display:none" value="chinese">Hanzi</mwc-list-item>
         <mwc-list-item graphic="icon" @click=${() => { writtenChineseSearch(this.query) }}>
           <img src="./img/writtenchinese.png" slot="graphic">
@@ -108,7 +108,7 @@ export class SearchPanel extends LitElement {
       </mwc-select>
 
       <mwc-select @selected=${(e) => { e.target.value = 'korean'}} value="korean" style="max-width:115px"
-          naturalMenuWidth>
+          naturalMenuWidth fixedMenuPosition>
         <mwc-list-item style="display:none" value="korean">Korean</mwc-list-item>
         <mwc-list-item graphic="icon" @click=${() => { naverKoreanSearch(this.query) }}>
           <img src="./img/naver.ico" slot="graphic">

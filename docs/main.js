@@ -10981,13 +10981,18 @@ let SearchPanel = class SearchPanel extends s$1 {
                     clearTimeout(_openDebouncer);
                     _openDebouncer = undefined;
                 }
-                // @ts-ignore
-                _openDebouncer = setTimeout(() => el.menuOpen = true, 400);
+                _openDebouncer = setTimeout(() => {
+                    // We should also blur the input if there is one
+                    window.quickSearch.textfield.blur();
+                    // @ts-ignore
+                    el.menuOpen = true;
+                }, 400);
             });
             el.addEventListener('mouseleave', (e) => {
                 clearTimeout(_openDebouncer);
                 // @ts-ignore
                 el.menuOpen = false;
+                el.blur();
             });
         });
     }
@@ -21509,7 +21514,7 @@ let LangRoutes = class LangRoutes extends s$1 {
     }
     firstUpdated() {
         const selectFunction = () => {
-            if (this._locked && this.currentDocument && !this._quickSearch._dialog.open) {
+            if (this._locked && this.currentDocument && !window.quickSearch._dialog.open) {
                 const selection = getSelection().trim();
                 if (selection) {
                     this._selected = selection;
@@ -21559,16 +21564,13 @@ let LangRoutes = class LangRoutes extends s$1 {
       <div style="display:flex">
         <mwc-icon-button icon="note_add"
           @click=${() => this.createNewDocument()}></mwc-icon-button>
-        <mwc-icon-button icon="search" @click=${() => this._quickSearch.open()}></mwc-icon-button>
+        <mwc-icon-button icon="search" @click=${() => window.quickSearch.open()}></mwc-icon-button>
         <mwc-icon-button-toggle onIcon="lock" offIcon="lock_open" @click=${() => { this._locked = !this._locked; if (!this._locked) {
             setTimeout(() => this._textarea.focus(), 100);
         } }} style="color:${this._locked ? 'green' : 'red'}" ?on=${this._locked}></mwc-icon-button-toggle>
         <mwc-icon-button icon="settings"
           @click=${() => window.settingsDialog.show()}></mwc-icon-button>
       </div>
-      <!-- <mwc-button dense icon="search" @click=${() => this._quickSearch.open()}>quick</mwc-button>
-      <mwc-button dense icon="lock" @click=${() => this._locked = !this._locked} style="">lock</mwc-button>
-      <mwc-button dense icon="settings">settings</mwc-button> -->
     </header>
 
     <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="font-size:${window.settingsDialog.fontSize}px"
@@ -21655,7 +21657,6 @@ LangRoutes.styles = [
       /* align-items: center; */
       /* width:-webkit-fill-available; */
       height: 85%;
-      --mdc-theme-primary: black;
     }
     [hide] {
       display:none;
@@ -21730,9 +21731,6 @@ __decorate([
 __decorate([
     i$6('#textContainer')
 ], LangRoutes.prototype, "_textContainer", void 0);
-__decorate([
-    i$6('quick-search')
-], LangRoutes.prototype, "_quickSearch", void 0);
 __decorate([
     i$6('search-panel')
 ], LangRoutes.prototype, "searchPanel", void 0);

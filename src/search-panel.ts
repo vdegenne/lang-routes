@@ -158,13 +158,18 @@ export class SearchPanel extends LitElement {
           clearTimeout(_openDebouncer)
           _openDebouncer = undefined
         }
-        // @ts-ignore
-        _openDebouncer = setTimeout(() => el.menuOpen = true, 400)
+        _openDebouncer = setTimeout(() => {
+          // We should also blur the input if there is one
+          window.quickSearch.textfield.blur()
+          // @ts-ignore
+          el.menuOpen = true
+        }, 400)
       })
       el.addEventListener('mouseleave', (e) => {
         clearTimeout(_openDebouncer)
         // @ts-ignore
         el.menuOpen = false
+        el.blur()
       })
     })
   }

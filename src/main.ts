@@ -28,7 +28,6 @@ export class LangRoutes extends LitElement {
 
   @query('textarea') _textarea!: HTMLTextAreaElement;
   @query('#textContainer') _textContainer!: HTMLParagraphElement;
-  @query('quick-search') _quickSearch!: QuickSearch;
   @query('search-panel') searchPanel!: SearchPanel;
 
   constructor() {
@@ -48,7 +47,7 @@ export class LangRoutes extends LitElement {
 
   firstUpdated() {
     const selectFunction = () => {
-      if (this._locked && this.currentDocument && !this._quickSearch._dialog.open) {
+      if (this._locked && this.currentDocument && !window.quickSearch._dialog.open) {
         const selection = getSelection().trim()
         if (selection) {
           this._selected = selection
@@ -78,7 +77,6 @@ export class LangRoutes extends LitElement {
       /* align-items: center; */
       /* width:-webkit-fill-available; */
       height: 85%;
-      --mdc-theme-primary: black;
     }
     [hide] {
       display:none;
@@ -171,14 +169,11 @@ export class LangRoutes extends LitElement {
       <div style="display:flex">
         <mwc-icon-button icon="note_add"
           @click=${() => this.createNewDocument()}></mwc-icon-button>
-        <mwc-icon-button icon="search" @click=${() => this._quickSearch.open()}></mwc-icon-button>
+        <mwc-icon-button icon="search" @click=${() => window.quickSearch.open()}></mwc-icon-button>
         <mwc-icon-button-toggle onIcon="lock" offIcon="lock_open" @click=${() => {this._locked = !this._locked; if (!this._locked) { setTimeout(() => this._textarea.focus(), 100) }}} style="color:${this._locked ? 'green': 'red'}" ?on=${this._locked}></mwc-icon-button-toggle>
         <mwc-icon-button icon="settings"
           @click=${() => window.settingsDialog.show()}></mwc-icon-button>
       </div>
-      <!-- <mwc-button dense icon="search" @click=${() => this._quickSearch.open()}>quick</mwc-button>
-      <mwc-button dense icon="lock" @click=${() => this._locked = !this._locked} style="">lock</mwc-button>
-      <mwc-button dense icon="settings">settings</mwc-button> -->
     </header>
 
     <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="font-size:${window.settingsDialog.fontSize}px"

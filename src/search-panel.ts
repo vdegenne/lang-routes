@@ -175,6 +175,6 @@ export class SearchPanel extends LitElement {
   }
 
   public openFirstSearch () {
-    this.shadowRoot!.querySelector('mwc-button')!.click()
+    // this.shadowRoot!.querySelector('mwc-select')!.click()
   }
 }

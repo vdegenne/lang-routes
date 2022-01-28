@@ -9,6 +9,7 @@ import './search-panel'
 import { SearchPanel } from './search-panel';
 import { TextField } from '@material/mwc-textfield';
 import html2canvas from 'html2canvas'
+import { isChinese, isFullJapanese } from 'asian-regexps';
 
 @customElement('quick-search')
 export class QuickSearch extends LitElement {
@@ -60,8 +61,9 @@ export class QuickSearch extends LitElement {
       <mwc-dialog scrimClickAction="">
         <div style="display:flex;align-items:center">
           <mwc-textfield placeholder="search"
+            helperPersistent
             .value=${live(this.query)}
-            @keyup=${e => this.onTextFieldKeyup(e)}
+            @keyup=${(e) => { this.onTextFieldKeyup(e) }}
             dialogInitialFocus></mwc-textfield>
           <mwc-icon-button icon="close"
             @click=${() => { this.onCloseIconClick() }}></mwc-icon-button>
@@ -79,7 +81,7 @@ export class QuickSearch extends LitElement {
 
         <div id=history>
           ${this.history.map((q) => {
-            return html`<span class=query @click=${() => { this.query = q }} ?selected=${this.query === q}>${q}</span>`
+            return html`<span class=query @click=${() => { if (this.query !== q) { this.query = q; this.onTextFieldChange()} }} ?selected=${this.query === q}>${q}</span>`
           })}
         </div>
         <mwc-button outlined slot="secondaryAction" dialogAction="close">close</mwc-button>
@@ -93,13 +95,50 @@ export class QuickSearch extends LitElement {
     this.textfield.focus()
   }
 
-  private onTextFieldKeyup (e) {
+  private _flattenDebouncer;
+
+  private async onTextFieldChange () {
+    await this.updateComplete
+    this.query = this.textfield.value;
+    // Initiate a search to resolve the Japanese word to full japanese
+    // If the word is full japanese already (without kanjis within) do nothing
+    if (isFullJapanese(this.query) && isChinese(this.query)) {
+      let content;
+      if (this.query in window.dataManager.flats) {
+        this.textfield.helper = window.dataManager.flats[this.query]
+      }
+      else {
+        if (this._flattenDebouncer) {
+          clearTimeout(this._flattenDebouncer)
+          this._flattenDebouncer = undefined
+        }
+        this._flattenDebouncer = setTimeout(async () => {
+          try {
+            const response = await fetch(`https://assiets.vdegenne.com/data/japanese/flatten/${this.query}`)
+            if (response.status !== 200) {
+              throw new Error()
+            }
+            content = await response.text()
+            this.textfield.helper = content
+            window.dataManager.flats[this.query] = content
+            window.dataManager.save()
+          } catch (e) {
+            return
+          }
+        }, 1500)
+      }
+    }
+    else {
+      this.textfield.helper = ''
+    }
+  }
+
+  private async onTextFieldKeyup (e) {
     if (e.key === 'Enter') {
       this._searchPanel.openFirstSearch()
       return;
     }
-    this.query = e.target.value
-    // this._searchPanel.query = e.target.value;
+    this.onTextFieldChange()
   }
 
   open () {

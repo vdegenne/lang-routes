@@ -6140,8 +6140,10 @@ TextField = __decorate([
 
 var chineseRegStringExp = '[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]';
 var japaneseRegStringExp = '[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]';
+var chineseRegExp = new RegExp("(".concat(chineseRegStringExp, ")+"));
 var chineseFullRegExp = new RegExp("^(".concat(chineseRegStringExp, ")+$"), 'g');
 var japaneseFullRegExp = new RegExp("^(".concat(japaneseRegStringExp, ")+$"), 'g');
+var isChinese = function (input) { return !!input.match(chineseRegExp); };
 var isFullChinese = function (input) { return !!input.match(chineseFullRegExp); };
 var isFullJapanese = function (input) { return !!input.match(japaneseFullRegExp); };
 
@@ -10997,7 +10999,7 @@ let SearchPanel = class SearchPanel extends s$1 {
         });
     }
     openFirstSearch() {
-        this.shadowRoot.querySelector('mwc-button').click();
+        // this.shadowRoot!.querySelector('mwc-select')!.click()
     }
 };
 SearchPanel.styles = r$3 `
@@ -18857,8 +18859,9 @@ let QuickSearch = class QuickSearch extends s$1 {
       <mwc-dialog scrimClickAction="">
         <div style="display:flex;align-items:center">
           <mwc-textfield placeholder="search"
+            helperPersistent
             .value=${l$1(this.query)}
-            @keyup=${e => this.onTextFieldKeyup(e)}
+            @keyup=${(e) => { this.onTextFieldKeyup(e); }}
             dialogInitialFocus></mwc-textfield>
           <mwc-icon-button icon="close"
             @click=${() => { this.onCloseIconClick(); }}></mwc-icon-button>
@@ -18876,7 +18879,10 @@ let QuickSearch = class QuickSearch extends s$1 {
 
         <div id=history>
           ${this.history.map((q) => {
-            return p `<span class=query @click=${() => { this.query = q; }} ?selected=${this.query === q}>${q}</span>`;
+            return p `<span class=query @click=${() => { if (this.query !== q) {
+                this.query = q;
+                this.onTextFieldChange();
+            } }} ?selected=${this.query === q}>${q}</span>`;
         })}
         </div>
         <mwc-button outlined slot="secondaryAction" dialogAction="close">close</mwc-button>
@@ -18888,13 +18894,48 @@ let QuickSearch = class QuickSearch extends s$1 {
         // this.textfield.value = ''
         this.textfield.focus();
     }
-    onTextFieldKeyup(e) {
+    async onTextFieldChange() {
+        await this.updateComplete;
+        this.query = this.textfield.value;
+        // Initiate a search to resolve the Japanese word to full japanese
+        // If the word is full japanese already (without kanjis within) do nothing
+        if (isFullJapanese(this.query) && isChinese(this.query)) {
+            let content;
+            if (this.query in window.dataManager.flats) {
+                this.textfield.helper = window.dataManager.flats[this.query];
+            }
+            else {
+                if (this._flattenDebouncer) {
+                    clearTimeout(this._flattenDebouncer);
+                    this._flattenDebouncer = undefined;
+                }
+                this._flattenDebouncer = setTimeout(async () => {
+                    try {
+                        const response = await fetch(`https://assiets.vdegenne.com/data/japanese/flatten/${this.query}`);
+                        if (response.status !== 200) {
+                            throw new Error();
+                        }
+                        content = await response.text();
+                        this.textfield.helper = content;
+                        window.dataManager.flats[this.query] = content;
+                        window.dataManager.save();
+                    }
+                    catch (e) {
+                        return;
+                    }
+                }, 1500);
+            }
+        }
+        else {
+            this.textfield.helper = '';
+        }
+    }
+    async onTextFieldKeyup(e) {
         if (e.key === 'Enter') {
             this._searchPanel.openFirstSearch();
             return;
         }
-        this.query = e.target.value;
-        // this._searchPanel.query = e.target.value;
+        this.onTextFieldChange();
     }
     open() {
         this._dialog.show();
@@ -21495,6 +21536,23 @@ __decorate([
 StrokesDialog = __decorate([
     n$1('strokes-dialog')
 ], StrokesDialog);
+
+class DataManager {
+    constructor() {
+        this.flats = {};
+        this.load();
+    }
+    load() {
+        if (localStorage.getItem('lang-routes:flats')) {
+            this.flats = JSON.parse(localStorage.getItem('lang-routes:flats').toString());
+        }
+    }
+    save() {
+        if (Object.keys(this.flats).length > 0)
+            localStorage.setItem('lang-routes:flats', JSON.stringify(this.flats));
+    }
+}
+window.dataManager = new DataManager;
 
 let LangRoutes = class LangRoutes extends s$1 {
     constructor() {

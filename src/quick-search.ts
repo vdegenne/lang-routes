@@ -9,7 +9,7 @@ import './search-panel'
 import { SearchPanel } from './search-panel';
 import { TextField } from '@material/mwc-textfield';
 import html2canvas from 'html2canvas'
-import { isChinese, isFullJapanese } from 'asian-regexps';
+import { hasChinese, isFullJapanese } from 'asian-regexps';
 
 @customElement('quick-search')
 export class QuickSearch extends LitElement {
@@ -102,7 +102,7 @@ export class QuickSearch extends LitElement {
     this.query = this.textfield.value;
     // Initiate a search to resolve the Japanese word to full japanese
     // If the word is full japanese already (without kanjis within) do nothing
-    if (isFullJapanese(this.query) && isChinese(this.query)) {
+    if (isFullJapanese(this.query) && hasChinese(this.query)) {
       this.textfield.helper = ''
       if (this.query in window.dataManager.flats) {
         this.textfield.helper = window.dataManager.flats[this.query]

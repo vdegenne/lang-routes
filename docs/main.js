@@ -6143,7 +6143,7 @@ var japaneseRegStringExp = '[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9
 var chineseRegExp = new RegExp("(".concat(chineseRegStringExp, ")+"));
 var chineseFullRegExp = new RegExp("^(".concat(chineseRegStringExp, ")+$"), 'g');
 var japaneseFullRegExp = new RegExp("^(".concat(japaneseRegStringExp, ")+$"), 'g');
-var isChinese = function (input) { return !!input.match(chineseRegExp); };
+var hasChinese = function (input) { return !!input.match(chineseRegExp); };
 var isFullChinese = function (input) { return !!input.match(chineseFullRegExp); };
 var isFullJapanese = function (input) { return !!input.match(japaneseFullRegExp); };
 
@@ -18899,7 +18899,7 @@ let QuickSearch = class QuickSearch extends s$1 {
         this.query = this.textfield.value;
         // Initiate a search to resolve the Japanese word to full japanese
         // If the word is full japanese already (without kanjis within) do nothing
-        if (isFullJapanese(this.query) && isChinese(this.query)) {
+        if (isFullJapanese(this.query) && hasChinese(this.query)) {
             this.textfield.helper = '';
             if (this.query in window.dataManager.flats) {
                 this.textfield.helper = window.dataManager.flats[this.query];

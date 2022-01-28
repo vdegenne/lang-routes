@@ -12,7 +12,6 @@ import { SearchPanel } from './search-panel'
 import { live } from 'lit/directives/live.js'
 import './settings-dialog'
 import './global-declarations'
-import { isFullJapanese, isJapanese } from 'asian-regexps'
 
 
 @customElement('lang-routes')

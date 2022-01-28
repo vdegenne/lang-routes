@@ -11,7 +11,7 @@
     "@material/mwc-textfield": "^0.25.3",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-typescript": "^8.3.0",
-    "asian-regexps": "^4.1.4",
+    "asian-regexps": "^4.3.0",
     "browser-sync": "^2.27.7",
     "html2canvas": "^1.4.1",
     "lit": "^2.0.2",

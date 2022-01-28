@@ -18900,7 +18900,6 @@ let QuickSearch = class QuickSearch extends s$1 {
         // Initiate a search to resolve the Japanese word to full japanese
         // If the word is full japanese already (without kanjis within) do nothing
         if (isFullJapanese(this.query) && isChinese(this.query)) {
-            let content;
             if (this.query in window.dataManager.flats) {
                 this.textfield.helper = window.dataManager.flats[this.query];
             }
@@ -18910,18 +18909,21 @@ let QuickSearch = class QuickSearch extends s$1 {
                     this._flattenDebouncer = undefined;
                 }
                 this._flattenDebouncer = setTimeout(async () => {
+                    let content;
                     try {
                         const response = await fetch(`https://assiets.vdegenne.com/data/japanese/flatten/${this.query}`);
                         if (response.status !== 200) {
+                            content = '';
                             throw new Error();
                         }
                         content = await response.text();
-                        this.textfield.helper = content;
                         window.dataManager.flats[this.query] = content;
                         window.dataManager.save();
                     }
                     catch (e) {
-                        return;
+                    }
+                    finally {
+                        this.textfield.helper = content;
                     }
                 }, 1500);
             }

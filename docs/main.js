@@ -1980,18 +1980,6 @@ function googleTranslateSearch(word) {
 
 /**
  * @license
- * Copyright 2020 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */const r$1=o=>void 0===o.strings,f$1={},s=(o,i=f$1)=>o._$AH=i;
-
-/**
- * @license
- * Copyright 2020 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */const l$1=e$2(class extends i$5{constructor(r){if(super(r),r.type!==t.PROPERTY&&r.type!==t.ATTRIBUTE&&r.type!==t.BOOLEAN_ATTRIBUTE)throw Error("The `live` directive is not allowed on child or event bindings");if(!r$1(r))throw Error("`live` bindings can only contain a single expression")}render(r){return r}update(i,[t$1]){if(t$1===b||t$1===T$1)return t$1;const o=i.element,l=i.name;if(i.type===t.PROPERTY){if(t$1===o[l])return b}else if(i.type===t.BOOLEAN_ATTRIBUTE){if(!!t$1===o.hasAttribute(l))return b}else if(i.type===t.ATTRIBUTE&&o.getAttribute(l)===t$1+"")return b;return s(i),t$1}});
-
-/**
- * @license
  * Copyright 2016 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -5515,6 +5503,18 @@ var MDCTextFieldFoundation = /** @class */ (function (_super) {
 }(MDCFoundation));
 // tslint:disable-next-line:no-default-export Needed for backward compatibility with MDC Web v0.44.0 and earlier.
 var MDCTextFieldFoundation$1 = MDCTextFieldFoundation;
+
+/**
+ * @license
+ * Copyright 2020 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const r$1=o=>void 0===o.strings,f$1={},s=(o,i=f$1)=>o._$AH=i;
+
+/**
+ * @license
+ * Copyright 2020 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const l$1=e$2(class extends i$5{constructor(r){if(super(r),r.type!==t.PROPERTY&&r.type!==t.ATTRIBUTE&&r.type!==t.BOOLEAN_ATTRIBUTE)throw Error("The `live` directive is not allowed on child or event bindings");if(!r$1(r))throw Error("`live` bindings can only contain a single expression")}render(r){return r}update(i,[t$1]){if(t$1===b||t$1===T$1)return t$1;const o=i.element,l=i.name;if(i.type===t.PROPERTY){if(t$1===o[l])return b}else if(i.type===t.BOOLEAN_ATTRIBUTE){if(!!t$1===o.hasAttribute(l))return b}else if(i.type===t.ATTRIBUTE&&o.getAttribute(l)===t$1+"")return b;return s(i),t$1}});
 
 /**
  * @license
@@ -18850,9 +18850,12 @@ let QuickSearch = class QuickSearch extends s$1 {
         this.query = '';
         this.history = localStorage.getItem('lang-routes:history') ? JSON.parse(localStorage.getItem('lang-routes:history').toString()) : [];
         window.addEventListener('searched', (e) => {
-            this.history = [...new Set([e.detail.query].concat(this.history))];
-            this.saveHistory();
+            this.addToHistory(e.detail.query);
         });
+    }
+    addToHistory(query) {
+        this.history = [...new Set([query].concat(this.history))];
+        this.saveHistory();
     }
     render() {
         return p `
@@ -18860,7 +18863,7 @@ let QuickSearch = class QuickSearch extends s$1 {
         <div style="display:flex;align-items:center">
           <mwc-textfield placeholder="search"
             helperPersistent
-            .value=${l$1(this.query)}
+            value=${this.query}
             @keyup=${(e) => { this.onTextFieldKeyup(e); }}
             dialogInitialFocus></mwc-textfield>
           <mwc-icon-button icon="close"
@@ -18881,7 +18884,7 @@ let QuickSearch = class QuickSearch extends s$1 {
           ${this.history.map((q) => {
             return p `<span class=query @click=${() => { if (this.query !== q) {
                 this.query = q;
-                this.onTextFieldChange();
+                this.search();
             } }} ?selected=${this.query === q}>${q}</span>`;
         })}
         </div>
@@ -18894,36 +18897,13 @@ let QuickSearch = class QuickSearch extends s$1 {
         // this.textfield.value = ''
         this.textfield.focus();
     }
-    async onTextFieldChange() {
-        await this.updateComplete;
+    onTextFieldChange() {
+        // await this.updateComplete
         this.query = this.textfield.value;
         // Initiate a search to resolve the Japanese word to full japanese
         // If the word is full japanese already (without kanjis within) do nothing
-        if (isFullJapanese(this.query) && hasChinese(this.query)) {
-            this.textfield.helper = '';
-            if (this.query in window.dataManager.flats) {
-                this.textfield.helper = window.dataManager.flats[this.query];
-            }
-            else {
-                if (this._flattenDebouncer) {
-                    clearTimeout(this._flattenDebouncer);
-                    this._flattenDebouncer = undefined;
-                }
-                this._flattenDebouncer = setTimeout(async () => {
-                    try {
-                        const response = await fetch(`https://assiets.vdegenne.com/data/japanese/flatten/${this.query}`);
-                        if (response.status !== 200) {
-                            throw new Error();
-                        }
-                        const content = await response.text();
-                        this.textfield.helper = content;
-                        window.dataManager.flats[this.query] = content;
-                        window.dataManager.save();
-                    }
-                    catch (e) {
-                    }
-                }, 1500);
-            }
+        if (this.query in window.dataManager.flats) {
+            this.textfield.helper = window.dataManager.flats[this.query];
         }
         else {
             this.textfield.helper = '';
@@ -18931,10 +18911,45 @@ let QuickSearch = class QuickSearch extends s$1 {
     }
     async onTextFieldKeyup(e) {
         if (e.key === 'Enter') {
+            this.search();
+            this.textfield.blur();
             this._searchPanel.openFirstSearch();
             return;
         }
         this.onTextFieldChange();
+    }
+    // private _flattenDebouncer;
+    async search() {
+        this.addToHistory(this.query);
+        if (isFullJapanese(this.query) && hasChinese(this.query)) {
+            this.textfield.helper = '';
+            if (this.query in window.dataManager.flats) {
+                this.textfield.helper = window.dataManager.flats[this.query];
+            }
+            else {
+                // if (this._flattenDebouncer) {
+                //   clearTimeout(this._flattenDebouncer)
+                //   this._flattenDebouncer = undefined
+                // }
+                // this._flattenDebouncer = setTimeout(async () => {
+                try {
+                    const response = await fetch(`https://assiets.vdegenne.com/data/japanese/flatten/${this.query}`);
+                    if (response.status !== 200) {
+                        throw new Error();
+                    }
+                    const content = await response.text();
+                    this.textfield.helper = content;
+                    window.dataManager.flats[this.query] = content;
+                    window.dataManager.save();
+                }
+                catch (e) {
+                }
+                // }, 1500)
+            }
+        }
+        else {
+            this.textfield.helper = '';
+        }
     }
     open() {
         this._dialog.show();
@@ -21586,9 +21601,7 @@ let LangRoutes = class LangRoutes extends s$1 {
         // })
         // this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
         window.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter' && this._locked && this._selected !== '') {
-                this.shadowRoot.querySelector('search-panel').openFirstSearch();
-            }
+            if (e.key === 'Enter' && this._locked && this._selected !== '') ;
         });
     }
     loadDocument(document) {

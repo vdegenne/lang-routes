@@ -51,9 +51,13 @@ export class QuickSearch extends LitElement {
     super()
 
     window.addEventListener('searched', (e: Event) => {
-      this.history = [...new Set([(e as CustomEvent).detail.query].concat(this.history))]
-      this.saveHistory()
+      this.addToHistory((e as CustomEvent).detail.query);
     })
+  }
+
+  public addToHistory(query: string) {
+    this.history = [...new Set([query].concat(this.history))]
+    this.saveHistory()
   }
 
   render () {
@@ -62,7 +66,7 @@ export class QuickSearch extends LitElement {
         <div style="display:flex;align-items:center">
           <mwc-textfield placeholder="search"
             helperPersistent
-            .value=${live(this.query)}
+            value=${this.query}
             @keyup=${(e) => { this.onTextFieldKeyup(e) }}
             dialogInitialFocus></mwc-textfield>
           <mwc-icon-button icon="close"
@@ -81,7 +85,7 @@ export class QuickSearch extends LitElement {
 
         <div id=history>
           ${this.history.map((q) => {
-            return html`<span class=query @click=${() => { if (this.query !== q) { this.query = q; this.onTextFieldChange()} }} ?selected=${this.query === q}>${q}</span>`
+            return html`<span class=query @click=${() => { if (this.query !== q) { this.query = q; this.search()} }} ?selected=${this.query === q}>${q}</span>`
           })}
         </div>
         <mwc-button outlined slot="secondaryAction" dialogAction="close">close</mwc-button>
@@ -95,24 +99,45 @@ export class QuickSearch extends LitElement {
     this.textfield.focus()
   }
 
-  private _flattenDebouncer;
 
-  private async onTextFieldChange () {
-    await this.updateComplete
+  private onTextFieldChange () {
+    // await this.updateComplete
     this.query = this.textfield.value;
     // Initiate a search to resolve the Japanese word to full japanese
     // If the word is full japanese already (without kanjis within) do nothing
+    if (this.query in window.dataManager.flats) {
+      this.textfield.helper = window.dataManager.flats[this.query]
+    }
+    else {
+      this.textfield.helper = ''
+    }
+  }
+
+  private async onTextFieldKeyup (e) {
+    if (e.key === 'Enter') {
+      this.search()
+      this.textfield.blur()
+      this._searchPanel.openFirstSearch()
+      return;
+    }
+    this.onTextFieldChange()
+  }
+
+
+  // private _flattenDebouncer;
+  async search () {
+    this.addToHistory(this.query)
     if (isFullJapanese(this.query) && hasChinese(this.query)) {
       this.textfield.helper = ''
       if (this.query in window.dataManager.flats) {
         this.textfield.helper = window.dataManager.flats[this.query]
       }
       else {
-        if (this._flattenDebouncer) {
-          clearTimeout(this._flattenDebouncer)
-          this._flattenDebouncer = undefined
-        }
-        this._flattenDebouncer = setTimeout(async () => {
+        // if (this._flattenDebouncer) {
+        //   clearTimeout(this._flattenDebouncer)
+        //   this._flattenDebouncer = undefined
+        // }
+        // this._flattenDebouncer = setTimeout(async () => {
           try {
             const response = await fetch(`https://assiets.vdegenne.com/data/japanese/flatten/${this.query}`)
             if (response.status !== 200) {
@@ -125,20 +150,12 @@ export class QuickSearch extends LitElement {
           }
           catch (e) {
           }
-        }, 1500)
+        // }, 1500)
       }
     }
     else {
       this.textfield.helper = ''
     }
-  }
-
-  private async onTextFieldKeyup (e) {
-    if (e.key === 'Enter') {
-      this._searchPanel.openFirstSearch()
-      return;
-    }
-    this.onTextFieldChange()
   }
 
   open () {

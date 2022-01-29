@@ -63,7 +63,7 @@ export class LangRoutes extends LitElement {
 
     window.addEventListener('keyup', (e) => {
       if (e.key === 'Enter' && this._locked && this._selected !== '') {
-        (this.shadowRoot!.querySelector('search-panel') as SearchPanel).openFirstSearch()
+        // (this.shadowRoot!.querySelector('search-panel') as SearchPanel).openFirstSearch()
       }
     })
   }

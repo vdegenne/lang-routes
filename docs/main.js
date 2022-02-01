@@ -10912,13 +10912,13 @@ let SearchPanel = class SearchPanel extends s$1 {
           <img slot="graphic" src="./img/mdbg.ico">
           <span>MDBG</span>
         </mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { writtenChineseSearch(this.query); }}>
-          <img src="./img/writtenchinese.png" slot="graphic">
-          <span>WrittenChinese</span>
-        </mwc-list-item>
         <mwc-list-item graphic="icon" @click=${() => { naverHanjaSearch(this.query); }}>
           <img src="./img/naver.ico" slot="graphic">
           <span>Naver (Hanja)</span>
+        </mwc-list-item>
+        <mwc-list-item graphic="icon" @click=${() => { writtenChineseSearch(this.query); }}>
+          <img src="./img/writtenchinese.png" slot="graphic">
+          <span>WrittenChinese</span>
         </mwc-list-item>
         <mwc-list-item graphic="icon"
           @click=${() => {

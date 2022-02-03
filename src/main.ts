@@ -38,7 +38,7 @@ export class LangRoutes extends LitElement {
       this.requestUpdate()
     })
 
-    window.addEventListener('keypress', (e) => {
+    window.addEventListener('keydown', (e) => {
       if (e.composedPath()[0] instanceof HTMLTextAreaElement
         || e.composedPath()[0] instanceof HTMLInputElement) {
         return;

@@ -163,6 +163,7 @@ export class QuickSearch extends LitElement {
   }
 
   open () {
+    window.app.searchPanel.closeAllMenus()
     this._dialog.show()
   }
 

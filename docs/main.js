@@ -10865,55 +10865,58 @@ let SearchPanel = class SearchPanel extends s$1 {
     }
     render() {
         return p `
-      <mwc-select @selected=${(e) => { e.target.value = 'japanese'; }} value="japanese" style="max-width:135px"
-          naturalMenuWidth fixedMenuPosition
-          @keydown=${(e) => { this.onSelectKeyDown(e); }}>
-        <mwc-list-item style="display:none" value="japanese">Japanese</mwc-list-item>
+      <div style="position:relative">
+        <mwc-button outlined
+          @click=${(e) => { this.onButtonMouseOver(e); }}
+          @mouseover=${(e) => { this.onButtonMouseOver(e); }}>japanese</mwc-button>
+        <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
+          <mwc-list-item graphic="icon" openKey="j" @click=${() => { jishoSearch(this.query); }}>
+            <img src="./img/jisho.ico" slot="graphic">
+            <span>Jisho</span>
+          </mwc-list-item>
 
-        <mwc-list-item graphic="icon" openKey="j" @click=${() => { jishoSearch(this.query); }}>
-          <img src="./img/jisho.ico" slot="graphic">
-          <span>Jisho</span>
-        </mwc-list-item>
+          <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverJapSearch(this.query); }}>
+            <img src="./img/naver.ico" slot="graphic">
+            <span>Naver (Japanese)</span>
+          </mwc-list-item>
 
-        <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverJapSearch(this.query); }}>
-          <img src="./img/naver.ico" slot="graphic">
-          <span>Naver (Japanese)</span>
-        </mwc-list-item>
+          <mwc-list-item graphic="icon" openKey="m" @click=${() => { mdbgSearch(this.query); }}>
+            <img slot="graphic" src="./img/mdbg.ico">
+            <span>MDBG</span>
+          </mwc-list-item>
 
-        <mwc-list-item graphic="icon" openKey="m" @click=${() => { mdbgSearch(this.query); }}>
-          <img slot="graphic" src="./img/mdbg.ico">
-          <span>MDBG</span>
-        </mwc-list-item>
-
-        <mwc-list-item graphic="icon" openKey="s"
-          @click=${() => {
+          <mwc-list-item graphic="icon" openKey="s"
+            @click=${() => {
             if (!isFullChinese(this.query)) {
                 window.toast('This is not a Chinese or Japanese character');
                 return;
             }
             window.strokesDialog.open(this.query);
         }}>
-          <mwc-icon slot="graphic">brush</mwc-icon>
-          <span>Strokes</span>
-        </mwc-list-item>
+            <mwc-icon slot="graphic">brush</mwc-icon>
+            <span>Strokes</span>
+          </mwc-list-item>
 
-        <mwc-list-item graphic="icon" openKey="l" @click=${() => {
+          <mwc-list-item graphic="icon" openKey="l" @click=${() => {
             if (isFullJapanese(this.query)) {
                 (new Audio(`https://assiets.vdegenne.com/data/japanese/audio/${this.query}.mp3`)).play();
             }
         }}>
-          <mwc-icon slot="graphic">volume_up</mwc-icon>
-          <span>Listen</span>
-        </mwc-list-item>
-      </mwc-select>
+            <mwc-icon slot="graphic">volume_up</mwc-icon>
+            <span>Listen</span>
+          </mwc-list-item>
+        </mwc-menu>
+      </div>
 
       <!-- <mwc-icon-button @click=${() => jishoSearch(this.query)}>
         <img src="./img/jisho.ico">
       </mwc-icon-button> -->
 
-      <mwc-select @selected=${(e) => { e.target.value = 'chinese'; }} value="chinese" style="max-width:115px"
-          naturalMenuWidth fixedMenuPosition
-          @keydown=${(e) => { this.onSelectKeyDown(e); }}>
+      <div style="position:relative">
+      <mwc-button outlined
+        @click=${(e) => { this.onButtonMouseOver(e); }}
+        @mouseover=${(e) => { this.onButtonMouseOver(e); }}>hanzi</mwc-button>
+      <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
         <mwc-list-item style="display:none" value="chinese">Hanzi</mwc-list-item>
 
         <mwc-list-item graphic="icon" openKey="m" @click=${() => { mdbgSearch(this.query); }}>
@@ -10939,17 +10942,21 @@ let SearchPanel = class SearchPanel extends s$1 {
           <mwc-icon slot="graphic">brush</mwc-icon>
           <span>Strokes</span>
         </mwc-list-item>
-      </mwc-select>
+      </mwc-menu>
+        </div>
 
-      <mwc-select @selected=${(e) => { e.target.value = 'korean'; }} value="korean" style="max-width:115px"
-          naturalMenuWidth fixedMenuPosition
-          @keydown=${(e) => { this.onSelectKeyDown(e); }}>
+        <div style="position:relative">
+      <mwc-button outlined
+        @click=${e => { this.onButtonMouseOver(e); }}
+        @mouseover=${(e) => { this.onButtonMouseOver(e); }}>korean</mwc-button>
+      <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
         <mwc-list-item style="display:none" value="korean">Korean</mwc-list-item>
         <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverKoreanSearch(this.query); }}>
           <img src="./img/naver.ico" slot="graphic">
           <span>Naver (Korean)</span>
         </mwc-list-item>
-      </mwc-select>
+      </mwc-menu>
+        </div>
 
       <!-- <mwc-icon-button @click=${() => writtenChineseSearch(this.query)}>
         <img src="./img/writtenchinese.png">
@@ -10984,67 +10991,93 @@ let SearchPanel = class SearchPanel extends s$1 {
         }}></mwc-icon-button> -->
     `;
     }
-    onSelectKeyDown(e) {
-        const select = e.target;
-        const key = e.key;
-        const listItem = select.querySelector(`[openKey="${key}"]`);
-        if (listItem) {
-            listItem.click();
+    async onButtonMouseOver(e) {
+        const menu = e.target.nextElementSibling;
+        if (!menu.open) {
+            // document.body.click() // close all menus
+            [...this.menus].filter(el => el !== menu).forEach(el => { el.open = false; });
+            // Promise.all([...this.menus].map(el => el.updateComplete)).then(() => target.nextElementSibling.show())
+            // await menu.updateComplete
+            menu.open = true;
+        }
+        else {
+            menu.open = false;
         }
     }
+    closeAllMenus() {
+        [...this.menus].forEach(el => el.open = false);
+    }
+    onSelectKeyDown(e) {
+    }
     firstUpdated(_changedProperties) {
-        [...this.shadowRoot.querySelectorAll('mwc-select')].forEach((el) => {
-            let _openDebouncer;
-            el.addEventListener('mouseover', (e) => {
-                if (_openDebouncer) {
-                    clearTimeout(_openDebouncer);
-                    _openDebouncer = undefined;
-                }
-                _openDebouncer = setTimeout(() => {
-                    // We should also blur the input if there is one
-                    window.quickSearch.textfield.blur();
-                    // @ts-ignore
-                    el.menuOpen = true;
-                }, 400);
-            });
-            el.addEventListener('mouseleave', (e) => {
-                clearTimeout(_openDebouncer);
-                // @ts-ignore
-                el.menuOpen = false;
-                el.blur();
-            });
+        [...this.menus].forEach(el => {
+            el.anchor = el.previousElementSibling;
         });
+        // [...this.shadowRoot!.querySelectorAll<Select>('mwc-select')].forEach((el) => {
+        //   let _openDebouncer
+        //   el.addEventListener('mouseover', (e) => {
+        //     if (_openDebouncer) {
+        //       clearTimeout(_openDebouncer)
+        //       _openDebouncer = undefined
+        //     }
+        //     _openDebouncer = setTimeout(() => {
+        //       // We should also blur the input if there is one
+        //       window.quickSearch.textfield.blur()
+        //       // @ts-ignore
+        //       el.menuOpen = true
+        //     }, 400)
+        //   })
+        //   el.addEventListener('mouseleave', (e) => {
+        //     clearTimeout(_openDebouncer)
+        //     // @ts-ignore
+        //     el.menuOpen = false
+        //     el.blur()
+        //   })
+        // })
     }
     openFirstSearch() {
         // this.shadowRoot!.querySelector('mwc-select')!.click()
     }
     get openedMenu() {
         // @ts-ignore
-        return [...this.selects].filter(el => el.menuOpen)[0];
+        return [...this.menus].filter(el => el.open)[0];
     }
-    sendKey(key) {
-        let select, opened = this.openedMenu;
+    async sendKey(key) {
+        let opened = this.openedMenu;
+        if (opened) {
+            const listItem = opened.querySelector(`[openKey="${key}"]`);
+            if (listItem) {
+                listItem.click();
+                return;
+            }
+        }
         switch (key) {
             case 'j':
-                select = this.selects[0];
+                if (this.menus[0] !== opened)
+                    this.menus[0].anchor.click();
                 break;
             case 'h':
-                select = this.selects[1];
+                if (this.menus[1] !== opened)
+                    this.menus[1].anchor.click();
                 break;
             case 'k':
-                select = this.selects[2];
+                if (this.menus[2] !== opened)
+                    this.menus[2].anchor.click();
                 break;
+            case 'i':
+                this.shadowRoot.querySelectorAll('mwc-icon-button')[1].click();
             default:
                 return;
         }
-        if (select === opened) {
-            return;
-        }
-        [...this.selects].forEach(el => {
-            // @ts-ignore
-            return el.menuOpen = false;
-        });
-        select.menuOpen = true;
+        // if (select === opened) {
+        // // const select = e.target
+        //   return
+        // }
+        // [...this.selects].forEach(el => {
+        //   // @ts-ignore
+        //   return el.menuOpen = false;
+        // })
+        // select.menuOpen = true
     }
 };
 SearchPanel.styles = r$3 `
@@ -11068,6 +11101,9 @@ __decorate([
 __decorate([
     e$4('mwc-select')
 ], SearchPanel.prototype, "selects", void 0);
+__decorate([
+    e$4('mwc-menu')
+], SearchPanel.prototype, "menus", void 0);
 SearchPanel = __decorate([
     n$1('search-panel')
 ], SearchPanel);
@@ -19003,6 +19039,7 @@ let QuickSearch = class QuickSearch extends s$1 {
         return this._dialog.open;
     }
     open() {
+        window.app.searchPanel.closeAllMenus();
         this._dialog.show();
     }
     async downloadHistory() {
@@ -21629,7 +21666,7 @@ let LangRoutes = class LangRoutes extends s$1 {
         window.addEventListener('hashchange', (e) => {
             this.requestUpdate();
         });
-        window.addEventListener('keypress', (e) => {
+        window.addEventListener('keydown', (e) => {
             if (e.composedPath()[0] instanceof HTMLTextAreaElement
                 || e.composedPath()[0] instanceof HTMLInputElement) {
                 return;

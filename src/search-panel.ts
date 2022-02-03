@@ -1,4 +1,4 @@
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, queryAll } from 'lit/decorators.js';
 import '@material/mwc-button'
 import { googleImagesSearch, googleTranslateSearch, isKanji, jishoSearch, mdbgSearch, naverHanjaSearch, naverJapSearch, naverKoreanSearch, writtenChineseSearch } from './util';
 import { css, html, LitElement } from 'lit';
@@ -10,6 +10,8 @@ import { Select } from '@material/mwc-select';
 export class SearchPanel extends LitElement {
   @property()
   public query = ''
+
+  @queryAll('mwc-select') selects!: Select[];
 
   constructor () {
     super()
@@ -40,21 +42,26 @@ export class SearchPanel extends LitElement {
   render () {
     return html`
       <mwc-select @selected=${(e) => { e.target.value = 'japanese' }} value="japanese" style="max-width:135px"
-          naturalMenuWidth fixedMenuPosition>
+          naturalMenuWidth fixedMenuPosition
+          @keydown=${(e) => { this.onSelectKeyDown(e) }}>
         <mwc-list-item style="display:none" value="japanese">Japanese</mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { jishoSearch(this.query) }}>
+
+        <mwc-list-item graphic="icon" openKey="j" @click=${() => { jishoSearch(this.query) }}>
           <img src="./img/jisho.ico" slot="graphic">
           <span>Jisho</span>
         </mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { naverJapSearch(this.query) }}>
+
+        <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverJapSearch(this.query) }}>
           <img src="./img/naver.ico" slot="graphic">
           <span>Naver (Japanese)</span>
         </mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { mdbgSearch(this.query)}}>
+
+        <mwc-list-item graphic="icon" openKey="m" @click=${() => { mdbgSearch(this.query)}}>
           <img slot="graphic" src="./img/mdbg.ico">
           <span>MDBG</span>
         </mwc-list-item>
-        <mwc-list-item graphic="icon"
+
+        <mwc-list-item graphic="icon" openKey="s"
           @click=${() => {
             if (!isFullChinese(this.query)) {
               window.toast('This is not a Chinese or Japanese character')
@@ -65,7 +72,8 @@ export class SearchPanel extends LitElement {
           <mwc-icon slot="graphic">brush</mwc-icon>
           <span>Strokes</span>
         </mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => {
+
+        <mwc-list-item graphic="icon" openKey="l" @click=${() => {
           if (isFullJapanese(this.query)) {
             (new Audio(`https://assiets.vdegenne.com/data/japanese/audio/${this.query}.mp3`)).play()
           }
@@ -80,21 +88,23 @@ export class SearchPanel extends LitElement {
       </mwc-icon-button> -->
 
       <mwc-select @selected=${(e) => { e.target.value = 'chinese'}} value="chinese" style="max-width:115px"
-          naturalMenuWidth fixedMenuPosition>
+          naturalMenuWidth fixedMenuPosition
+          @keydown=${(e) => { this.onSelectKeyDown(e) }}>
         <mwc-list-item style="display:none" value="chinese">Hanzi</mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { mdbgSearch(this.query)}}>
+
+        <mwc-list-item graphic="icon" openKey="m" @click=${() => { mdbgSearch(this.query)}}>
           <img slot="graphic" src="./img/mdbg.ico">
           <span>MDBG</span>
         </mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { naverHanjaSearch(this.query) }}>
+        <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverHanjaSearch(this.query) }}>
           <img src="./img/naver.ico" slot="graphic">
           <span>Naver (Hanja)</span>
         </mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { writtenChineseSearch(this.query) }}>
+        <mwc-list-item graphic="icon" openKey="w" @click=${() => { writtenChineseSearch(this.query) }}>
           <img src="./img/writtenchinese.png" slot="graphic">
           <span>WrittenChinese</span>
         </mwc-list-item>
-        <mwc-list-item graphic="icon"
+        <mwc-list-item graphic="icon" openKey="s"
           @click=${() => {
             if (!isFullChinese(this.query)) {
               window.toast('This is not a Chinese or Japanese character')
@@ -108,9 +118,10 @@ export class SearchPanel extends LitElement {
       </mwc-select>
 
       <mwc-select @selected=${(e) => { e.target.value = 'korean'}} value="korean" style="max-width:115px"
-          naturalMenuWidth fixedMenuPosition>
+          naturalMenuWidth fixedMenuPosition
+          @keydown=${(e) => { this.onSelectKeyDown(e)}}>
         <mwc-list-item style="display:none" value="korean">Korean</mwc-list-item>
-        <mwc-list-item graphic="icon" @click=${() => { naverKoreanSearch(this.query) }}>
+        <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverKoreanSearch(this.query) }}>
           <img src="./img/naver.ico" slot="graphic">
           <span>Naver (Korean)</span>
         </mwc-list-item>
@@ -150,6 +161,15 @@ export class SearchPanel extends LitElement {
     `
   }
 
+  onSelectKeyDown(e: any) {
+    const select = e.target
+    const key = e.key
+    const listItem = select.querySelector(`[openKey="${key}"]`)
+    if (listItem) {
+      listItem.click()
+    }
+  }
+
   protected firstUpdated(_changedProperties: Map<string | number | symbol, unknown>): void {
     [...this.shadowRoot!.querySelectorAll<Select>('mwc-select')].forEach((el) => {
       let _openDebouncer
@@ -176,5 +196,33 @@ export class SearchPanel extends LitElement {
 
   public openFirstSearch () {
     // this.shadowRoot!.querySelector('mwc-select')!.click()
+  }
+
+  get openedMenu (): 'japanese'|'hanzi'|'korean' {
+    // @ts-ignore
+    return [...this.selects].filter(el => el.menuOpen)[0]
+  }
+
+  public sendKey (key: string) {
+    let select, opened = this.openedMenu;
+    switch (key) {
+      case 'j':
+        select = this.selects[0]
+      break;
+      case 'h':
+        select = this.selects[1]
+      break;
+      case 'k':
+        select = this.selects[2]
+      break;
+      default:
+        return;
+    }
+    if (select === opened) { return }
+    [...this.selects].forEach(el => {
+      // @ts-ignore
+      return el.menuOpen = false;
+    })
+    select.menuOpen = true
   }
 }

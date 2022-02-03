@@ -15,7 +15,7 @@ import { hasChinese, isFullJapanese } from 'asian-regexps';
 export class QuickSearch extends LitElement {
   @query('mwc-textfield') textfield!: TextField;
   @query('mwc-dialog') _dialog!: Dialog;
-  @query('search-panel') _searchPanel!: SearchPanel;
+  @query('search-panel') searchPanel!: SearchPanel;
   @query('#history') historyBox!: HTMLDivElement;
 
   @state() private query = '';
@@ -117,7 +117,7 @@ export class QuickSearch extends LitElement {
     if (e.key === 'Enter') {
       this.search()
       this.textfield.blur()
-      this._searchPanel.openFirstSearch()
+      this.searchPanel.openFirstSearch()
       return;
     }
     this.onTextFieldChange()
@@ -156,6 +156,10 @@ export class QuickSearch extends LitElement {
     else {
       this.textfield.helper = ''
     }
+  }
+
+  get opened() {
+    return this._dialog.open;
   }
 
   open () {

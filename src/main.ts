@@ -37,6 +37,19 @@ export class LangRoutes extends LitElement {
     window.addEventListener('hashchange', (e) => {
       this.requestUpdate()
     })
+
+    window.addEventListener('keypress', (e) => {
+      if (e.composedPath()[0] instanceof HTMLTextAreaElement
+        || e.composedPath()[0] instanceof HTMLInputElement) {
+        return;
+      }
+      if (window.quickSearch.opened) {
+        window.quickSearch.searchPanel.sendKey(e.key)
+      }
+      else {
+        this.searchPanel.sendKey(e.key)
+      }
+    })
   }
 
   public get currentDocument () {

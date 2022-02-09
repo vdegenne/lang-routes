@@ -53,6 +53,10 @@ export class QuickSearch extends LitElement {
     window.addEventListener('searched', (e: Event) => {
       this.addToHistory((e as CustomEvent).detail.query);
     })
+
+    window.addEventListener('focus', (e) => {
+      this.textfield.focus()
+    })
   }
 
   public addToHistory(query: string) {
@@ -63,16 +67,18 @@ export class QuickSearch extends LitElement {
   render () {
     return html`
       <mwc-dialog scrimClickAction="">
-        <div style="display:flex;align-items:center">
+        <div style="display:flex;align-items:flex-start">
           <mwc-textfield placeholder="search"
             helperPersistent
             value=${this.query}
             @keyup=${(e) => { this.onTextFieldKeyup(e) }}
-            dialogInitialFocus></mwc-textfield>
-          <mwc-icon-button icon="close"
+            ></mwc-textfield>
+          <mwc-icon-button icon="close" style="margin:6px"
             @click=${() => { this.onCloseIconClick() }}></mwc-icon-button>
         </div>
-        <search-panel .query=${this.query}></search-panel>
+
+        <search-panel .query=${this.query}
+          @opened=${() => { this.textfield.blur() }}></search-panel>
 
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px">
           <p style="font-weight:bold">History</p>
@@ -121,6 +127,7 @@ export class QuickSearch extends LitElement {
       return;
     }
     this.onTextFieldChange()
+    this.searchPanel.closeAllMenus()
   }
 
 

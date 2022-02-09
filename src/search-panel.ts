@@ -44,10 +44,13 @@ export class SearchPanel extends LitElement {
 
   render () {
     return html`
-      <div style="position:relative">
+      <div style="position:relative"
+        @mouseleave=${(e) => { this.onMenuWrapperMouseOut(e) }}
+      >
         <mwc-button outlined
-          @click=${(e) => { this.onButtonMouseOver(e)}}
-          @mouseover=${(e) => { this.onButtonMouseOver(e)}}>japanese</mwc-button>
+          @click=${(e) => { this.onButtonClick(e)}}
+          @mouseover=${(e) => { this.onButtonMouseOver(e)}}
+        >japanese</mwc-button>
         <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
           <mwc-list-item graphic="icon" openKey="j" @click=${() => { jishoSearch(this.query) }}>
             <img src="./img/jisho.ico" slot="graphic">
@@ -91,10 +94,13 @@ export class SearchPanel extends LitElement {
         <img src="./img/jisho.ico">
       </mwc-icon-button> -->
 
-      <div style="position:relative">
+      <div style="position:relative"
+        @mouseleave=${(e) => { this.onMenuWrapperMouseOut(e) }}
+      >
       <mwc-button outlined
-        @click=${(e) => {this.onButtonMouseOver(e)}}
-        @mouseover=${(e) => { this.onButtonMouseOver(e)}}>hanzi</mwc-button>
+        @click=${(e) => {this.onButtonClick(e)}}
+        @mouseover=${(e) => { this.onButtonMouseOver(e)}}
+      >hanzi</mwc-button>
       <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
         <mwc-list-item style="display:none" value="chinese">Hanzi</mwc-list-item>
 
@@ -124,17 +130,21 @@ export class SearchPanel extends LitElement {
       </mwc-menu>
         </div>
 
-        <div style="position:relative">
-      <mwc-button outlined
-        @click=${e => {this.onButtonMouseOver(e)}}
-        @mouseover=${(e) => { this.onButtonMouseOver(e)}}>korean</mwc-button>
-      <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
-        <mwc-list-item style="display:none" value="korean">Korean</mwc-list-item>
-        <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverKoreanSearch(this.query) }}>
-          <img src="./img/naver.ico" slot="graphic">
-          <span>Naver (Korean)</span>
-        </mwc-list-item>
-      </mwc-menu>
+        <div style="position:relative"
+          @mouseleave=${(e) => { this.onMenuWrapperMouseOut(e) }}
+        >
+          <mwc-button outlined
+            @click=${e => {this.onButtonClick(e)}}
+            @mouseover=${(e) => { this.onButtonMouseOver(e)}}
+          >korean</mwc-button>
+          <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick
+          >
+            <mwc-list-item style="display:none" value="korean">Korean</mwc-list-item>
+            <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverKoreanSearch(this.query) }}>
+              <img src="./img/naver.ico" slot="graphic">
+              <span>Naver (Korean)</span>
+            </mwc-list-item>
+          </mwc-menu>
         </div>
 
       <!-- <mwc-icon-button @click=${() => writtenChineseSearch(this.query)}>
@@ -171,18 +181,43 @@ export class SearchPanel extends LitElement {
     `
   }
 
-  async onButtonMouseOver (e) {
+  private _openDebouncer?: NodeJS.Timeout;
+  private _cancelOpenDebouncer () {
+    if (this._openDebouncer) {
+      clearTimeout(this._openDebouncer)
+      this._openDebouncer = undefined
+    }
+  }
+
+  private onButtonMouseOver (e) {
     const menu = e.target.nextElementSibling
     if (!menu.open) {
       // document.body.click() // close all menus
       [...this.menus].filter(el => el !== menu).forEach(el => { el.open = false })
       // Promise.all([...this.menus].map(el => el.updateComplete)).then(() => target.nextElementSibling.show())
       // await menu.updateComplete
-      menu.open = true
+
+      this._cancelOpenDebouncer()
+      this._openDebouncer = setTimeout(() => {
+        menu.open = true
+      }, 400)
     }
     else {
-      menu.open = false
+      // menu.open = false
     }
+  }
+
+  private onButtonClick(e) {
+    // If the button is clicked we should cancel the open debouncer on mouse over
+    this._cancelOpenDebouncer()
+    // Then we open the menu normally
+    const menu = e.target.nextElementSibling
+    menu.open = true
+  }
+
+  private onMenuWrapperMouseOut (e) {
+    this._cancelOpenDebouncer()
+    e.target.querySelector('mwc-menu').open = false;
   }
 
   closeAllMenus () {
@@ -217,6 +252,9 @@ export class SearchPanel extends LitElement {
     //     el.blur()
     //   })
     // })
+    [...this.menus].forEach(el => el.addEventListener('opened', (e) => {
+
+    }))
   }
 
   public openFirstSearch () {

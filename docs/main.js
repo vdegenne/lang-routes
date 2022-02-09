@@ -10865,10 +10865,13 @@ let SearchPanel = class SearchPanel extends s$1 {
     }
     render() {
         return p `
-      <div style="position:relative">
+      <div style="position:relative"
+        @mouseleave=${(e) => { this.onMenuWrapperMouseOut(e); }}
+      >
         <mwc-button outlined
-          @click=${(e) => { this.onButtonMouseOver(e); }}
-          @mouseover=${(e) => { this.onButtonMouseOver(e); }}>japanese</mwc-button>
+          @click=${(e) => { this.onButtonClick(e); }}
+          @mouseover=${(e) => { this.onButtonMouseOver(e); }}
+        >japanese</mwc-button>
         <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
           <mwc-list-item graphic="icon" openKey="j" @click=${() => { jishoSearch(this.query); }}>
             <img src="./img/jisho.ico" slot="graphic">
@@ -10912,10 +10915,13 @@ let SearchPanel = class SearchPanel extends s$1 {
         <img src="./img/jisho.ico">
       </mwc-icon-button> -->
 
-      <div style="position:relative">
+      <div style="position:relative"
+        @mouseleave=${(e) => { this.onMenuWrapperMouseOut(e); }}
+      >
       <mwc-button outlined
-        @click=${(e) => { this.onButtonMouseOver(e); }}
-        @mouseover=${(e) => { this.onButtonMouseOver(e); }}>hanzi</mwc-button>
+        @click=${(e) => { this.onButtonClick(e); }}
+        @mouseover=${(e) => { this.onButtonMouseOver(e); }}
+      >hanzi</mwc-button>
       <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
         <mwc-list-item style="display:none" value="chinese">Hanzi</mwc-list-item>
 
@@ -10945,17 +10951,21 @@ let SearchPanel = class SearchPanel extends s$1 {
       </mwc-menu>
         </div>
 
-        <div style="position:relative">
-      <mwc-button outlined
-        @click=${e => { this.onButtonMouseOver(e); }}
-        @mouseover=${(e) => { this.onButtonMouseOver(e); }}>korean</mwc-button>
-      <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
-        <mwc-list-item style="display:none" value="korean">Korean</mwc-list-item>
-        <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverKoreanSearch(this.query); }}>
-          <img src="./img/naver.ico" slot="graphic">
-          <span>Naver (Korean)</span>
-        </mwc-list-item>
-      </mwc-menu>
+        <div style="position:relative"
+          @mouseleave=${(e) => { this.onMenuWrapperMouseOut(e); }}
+        >
+          <mwc-button outlined
+            @click=${e => { this.onButtonClick(e); }}
+            @mouseover=${(e) => { this.onButtonMouseOver(e); }}
+          >korean</mwc-button>
+          <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick
+          >
+            <mwc-list-item style="display:none" value="korean">Korean</mwc-list-item>
+            <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverKoreanSearch(this.query); }}>
+              <img src="./img/naver.ico" slot="graphic">
+              <span>Naver (Korean)</span>
+            </mwc-list-item>
+          </mwc-menu>
         </div>
 
       <!-- <mwc-icon-button @click=${() => writtenChineseSearch(this.query)}>
@@ -10991,18 +11001,35 @@ let SearchPanel = class SearchPanel extends s$1 {
         }}></mwc-icon-button> -->
     `;
     }
-    async onButtonMouseOver(e) {
+    _cancelOpenDebouncer() {
+        if (this._openDebouncer) {
+            clearTimeout(this._openDebouncer);
+            this._openDebouncer = undefined;
+        }
+    }
+    onButtonMouseOver(e) {
         const menu = e.target.nextElementSibling;
         if (!menu.open) {
             // document.body.click() // close all menus
             [...this.menus].filter(el => el !== menu).forEach(el => { el.open = false; });
             // Promise.all([...this.menus].map(el => el.updateComplete)).then(() => target.nextElementSibling.show())
             // await menu.updateComplete
-            menu.open = true;
+            this._cancelOpenDebouncer();
+            this._openDebouncer = setTimeout(() => {
+                menu.open = true;
+            }, 400);
         }
-        else {
-            menu.open = false;
-        }
+    }
+    onButtonClick(e) {
+        // If the button is clicked we should cancel the open debouncer on mouse over
+        this._cancelOpenDebouncer();
+        // Then we open the menu normally
+        const menu = e.target.nextElementSibling;
+        menu.open = true;
+    }
+    onMenuWrapperMouseOut(e) {
+        this._cancelOpenDebouncer();
+        e.target.querySelector('mwc-menu').open = false;
     }
     closeAllMenus() {
         [...this.menus].forEach(el => el.open = false);
@@ -11034,6 +11061,8 @@ let SearchPanel = class SearchPanel extends s$1 {
         //     el.blur()
         //   })
         // })
+        [...this.menus].forEach(el => el.addEventListener('opened', (e) => {
+        }));
     }
     openFirstSearch() {
         // this.shadowRoot!.querySelector('mwc-select')!.click()
@@ -18936,6 +18965,9 @@ let QuickSearch = class QuickSearch extends s$1 {
         window.addEventListener('searched', (e) => {
             this.addToHistory(e.detail.query);
         });
+        window.addEventListener('focus', (e) => {
+            this.textfield.focus();
+        });
     }
     addToHistory(query) {
         this.history = [...new Set([query].concat(this.history))];
@@ -18944,16 +18976,18 @@ let QuickSearch = class QuickSearch extends s$1 {
     render() {
         return p `
       <mwc-dialog scrimClickAction="">
-        <div style="display:flex;align-items:center">
+        <div style="display:flex;align-items:flex-start">
           <mwc-textfield placeholder="search"
             helperPersistent
             value=${this.query}
             @keyup=${(e) => { this.onTextFieldKeyup(e); }}
-            dialogInitialFocus></mwc-textfield>
-          <mwc-icon-button icon="close"
+            ></mwc-textfield>
+          <mwc-icon-button icon="close" style="margin:6px"
             @click=${() => { this.onCloseIconClick(); }}></mwc-icon-button>
         </div>
-        <search-panel .query=${this.query}></search-panel>
+
+        <search-panel .query=${this.query}
+          @opened=${() => { this.textfield.blur(); }}></search-panel>
 
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px">
           <p style="font-weight:bold">History</p>
@@ -19001,6 +19035,7 @@ let QuickSearch = class QuickSearch extends s$1 {
             return;
         }
         this.onTextFieldChange();
+        this.searchPanel.closeAllMenus();
     }
     // private _flattenDebouncer;
     async search() {

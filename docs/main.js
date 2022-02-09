@@ -10872,7 +10872,7 @@ let SearchPanel = class SearchPanel extends s$1 {
           @click=${(e) => { this.onButtonClick(e); }}
           @mouseover=${(e) => { this.onButtonMouseOver(e); }}
         >japanese</mwc-button>
-        <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
+        <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick fixed>
           <mwc-list-item graphic="icon" openKey="j" @click=${() => { jishoSearch(this.query); }}>
             <img src="./img/jisho.ico" slot="graphic">
             <span>Jisho</span>
@@ -10922,7 +10922,7 @@ let SearchPanel = class SearchPanel extends s$1 {
         @click=${(e) => { this.onButtonClick(e); }}
         @mouseover=${(e) => { this.onButtonMouseOver(e); }}
       >hanzi</mwc-button>
-      <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
+      <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick fixed>
         <mwc-list-item style="display:none" value="chinese">Hanzi</mwc-list-item>
 
         <mwc-list-item graphic="icon" openKey="m" @click=${() => { mdbgSearch(this.query); }}>
@@ -10958,7 +10958,7 @@ let SearchPanel = class SearchPanel extends s$1 {
             @click=${e => { this.onButtonClick(e); }}
             @mouseover=${(e) => { this.onButtonMouseOver(e); }}
           >korean</mwc-button>
-          <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick
+          <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick fixed
           >
             <mwc-list-item style="display:none" value="korean">Korean</mwc-list-item>
             <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverKoreanSearch(this.query); }}>
@@ -18965,8 +18965,32 @@ let QuickSearch = class QuickSearch extends s$1 {
         window.addEventListener('searched', (e) => {
             this.addToHistory(e.detail.query);
         });
+        let _blurTimestamp = undefined;
+        let _focusDebouncer = undefined;
+        const clearFocusDebouncer = function () {
+            if (_focusDebouncer) {
+                clearTimeout(_focusDebouncer);
+                _focusDebouncer = undefined;
+            }
+        };
+        window.addEventListener('blur', (e) => {
+            clearFocusDebouncer();
+            _blurTimestamp = Date.now();
+        });
+        console.log('created');
         window.addEventListener('focus', (e) => {
-            this.textfield.focus();
+            _focusDebouncer = setTimeout(() => {
+                // We take advantage of one breach in Whale browser
+                // When the application is in the sidebar, on tab closing
+                // the blur event listener is triggered again.
+                // We use this behavior to avoid textfield focus other than
+                // toggling the sidebar on and off
+                console.log(Date.now() - _blurTimestamp);
+                if (_blurTimestamp && (Date.now() - _blurTimestamp < 1000)) {
+                    return;
+                }
+                this.textfield.focus();
+            }, 500);
         });
     }
     addToHistory(query) {
@@ -21789,7 +21813,6 @@ let LangRoutes = class LangRoutes extends s$1 {
 
     <search-panel .query=${l$1(this._selected)}></search-panel>
 
-    <quick-search></quick-search>
     `;
     }
     onTextAreaChange(e) {

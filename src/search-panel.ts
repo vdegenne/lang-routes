@@ -51,7 +51,7 @@ export class SearchPanel extends LitElement {
           @click=${(e) => { this.onButtonClick(e)}}
           @mouseover=${(e) => { this.onButtonMouseOver(e)}}
         >japanese</mwc-button>
-        <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
+        <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick fixed>
           <mwc-list-item graphic="icon" openKey="j" @click=${() => { jishoSearch(this.query) }}>
             <img src="./img/jisho.ico" slot="graphic">
             <span>Jisho</span>
@@ -101,7 +101,7 @@ export class SearchPanel extends LitElement {
         @click=${(e) => {this.onButtonClick(e)}}
         @mouseover=${(e) => { this.onButtonMouseOver(e)}}
       >hanzi</mwc-button>
-      <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick>
+      <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick fixed>
         <mwc-list-item style="display:none" value="chinese">Hanzi</mwc-list-item>
 
         <mwc-list-item graphic="icon" openKey="m" @click=${() => { mdbgSearch(this.query)}}>
@@ -137,7 +137,7 @@ export class SearchPanel extends LitElement {
             @click=${e => {this.onButtonClick(e)}}
             @mouseover=${(e) => { this.onButtonMouseOver(e)}}
           >korean</mwc-button>
-          <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick
+          <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick fixed
           >
             <mwc-list-item style="display:none" value="korean">Korean</mwc-list-item>
             <mwc-list-item graphic="icon" openKey="n" @click=${() => { naverKoreanSearch(this.query) }}>

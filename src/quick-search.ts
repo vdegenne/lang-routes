@@ -54,8 +54,33 @@ export class QuickSearch extends LitElement {
       this.addToHistory((e as CustomEvent).detail.query);
     })
 
+    let _blurTimestamp: number|undefined = undefined;
+    let _focusDebouncer: NodeJS.Timeout|undefined = undefined;
+    const clearFocusDebouncer = function () {
+      if (_focusDebouncer) {
+        clearTimeout(_focusDebouncer)
+        _focusDebouncer = undefined
+      }
+    }
+    window.addEventListener('blur', (e) => {
+      clearFocusDebouncer()
+      _blurTimestamp = Date.now()
+    })
+
+    console.log('created')
     window.addEventListener('focus', (e) => {
-      this.textfield.focus()
+      _focusDebouncer = setTimeout(() => {
+        // We take advantage of one breach in Whale browser
+        // When the application is in the sidebar, on tab closing
+        // the blur event listener is triggered again.
+        // We use this behavior to avoid textfield focus other than
+        // toggling the sidebar on and off
+        console.log(Date.now() - _blurTimestamp!)
+        if (_blurTimestamp && (Date.now() - _blurTimestamp < 1000)) {
+          return;
+        }
+        this.textfield.focus()
+      }, 500)
     })
   }
 

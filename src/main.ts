@@ -199,7 +199,6 @@ export class LangRoutes extends LitElement {
 
     <search-panel .query=${live(this._selected)}></search-panel>
 
-    <quick-search></quick-search>
     `
   }
 

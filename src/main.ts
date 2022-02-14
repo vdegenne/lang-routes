@@ -58,6 +58,37 @@ export class LangRoutes extends LitElement {
         this.searchPanel.sendKey(e.key)
       }
     })
+
+    let _blurTimestamp: number|undefined = undefined;
+    let _focusDebouncer: NodeJS.Timeout|undefined = undefined;
+    const clearFocusDebouncer = function () {
+      if (_focusDebouncer) {
+        clearTimeout(_focusDebouncer)
+        _focusDebouncer = undefined
+      }
+    }
+    window.addEventListener('blur', (e) => {
+      clearFocusDebouncer()
+      _blurTimestamp = Date.now()
+    })
+
+    window.addEventListener('focus', (e) => {
+      if (!navigator.userAgent.includes('Whale')) {
+        return;
+      }
+      _focusDebouncer = setTimeout(() => {
+        // We take advantage of one breach in Whale browser
+        // When the application is in the sidebar, on tab closing
+        // the blur event listener is triggered again.
+        // We use this behavior to avoid textfield focus other than
+        // toggling the sidebar on and off
+        // console.log(Date.now() - _blurTimestamp!)
+        if (_blurTimestamp && (Date.now() - _blurTimestamp < 1000)) {
+          return;
+        }
+        this.textfield.focus()
+      }, 500)
+    })
   }
 
   public get currentDocument () {
@@ -161,9 +192,7 @@ export class LangRoutes extends LitElement {
     #tags {
       display: inline-block;
       overflow: auto;
-      width: 100%;
-      padding: 22px 0 0 22px;
-      border-bottom: 1px solid #e0e0e0bb;
+      margin: 22px;
       box-sizing: border-box;
     }
 
@@ -186,6 +215,16 @@ export class LangRoutes extends LitElement {
     }
     [hide] {
       display: none;
+    }
+
+    .card {
+      box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+      overflow: auto;
+      border-radius: 5px;
+      border: 1px solid #00000029;
+      margin: 0 0 12px 0;
+      background-color: white;
+      padding: 12px;
     }
     `
   ]
@@ -233,48 +272,68 @@ export class LangRoutes extends LitElement {
       </div>
     </header>
 
-    <center style="margin:12px">
-    <mwc-button raised icon="label" dense
-      @click=${() => { window.tagDialog.open() }}>add a tag</mwc-button>
-    </center>
+    <div class=card>
+      <div style="margin:12px;text-align:right">
+      <mwc-button icon="label" unelevated
+        @click=${() => { window.tagDialog.open() }}>add a tag</mwc-button>
+      </div>
 
-    <div id="tags" style="height:${window.settingsDialog.maxHeight}px">
-    ${doc.content.map(tag => {
-      return html`<tag-element content=${tag}
-        @click=${async (e) => { this.query = tag; await this.updateComplete; this.search() }}></tag-element>`
-    })}
+      <div id="tags" style="max-height:${window.settingsDialog.maxHeight}px">
+      ${doc.content.map(tag => {
+        return html`<tag-element content=${tag}
+          @click=${async (e) => { this.query = tag; await this.updateComplete; this.search() }}></tag-element>`
+      })}
+      </div>
     </div>
 
     <!-- <div ?hide=${!this._locked} style="overflow-y:scroll;font-size:${window.settingsDialog.fontSize}px" id="textContainer">
       <span style="white-space:pre-wrap">${doc.content}</span>
     </div> -->
 
-    <div style="display:flex;align-items:flex-start">
-      <mwc-textfield placeholder="search" style="flex:1"
-        helperPersistent
-        value=${live(this.query)}
-        @keyup=${(e) => { this.onTextFieldKeyup(e) }}
-        ></mwc-textfield>
-      <mwc-icon-button icon="close" style="margin:6px"
-        @click=${() => { this.onCloseIconClick() }}></mwc-icon-button>
+    <div class=card>
+      <div style="display:flex;align-items:flex-start">
+        <mwc-textfield placeholder="search" style="flex:1"
+          helperPersistent
+          value=${live(this.query)}
+          @keyup=${(e) => { this.onTextFieldKeyup(e) }}
+          ></mwc-textfield>
+        <mwc-icon-button icon="close" style="margin:6px"
+          @click=${() => { this.onCloseIconClick() }}></mwc-icon-button>
+      </div>
+
+      <search-panel .query=${live(this.query)}></search-panel>
+      <mwc-button outlined icon="label" label="add search to tags" ?disabled=${!this.query}
+        @click=${() => { this.addInputAsATag() }}></mwc-button>
     </div>
 
-    <search-panel .query=${live(this.query)}></search-panel>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px">
-      <p style="font-weight:bold">History</p>
-      <div style="flex:1"></div>
-      <mwc-icon-button icon="delete"
-          ?hide=${!this.query || !this.history.includes(this.query)}
-          @click=${() => { this.history.splice(this.history.indexOf(this.textfield.value), 1); this.saveHistory() }}></mwc-icon-button>
-      <mwc-icon-button icon="download" @click=${() => { this.downloadHistory() }}></mwc-icon-button>
-    </div>
-    <div id=history>
-      ${this.history.filter(el => el).map((q) => {
-        return html`<span class=query @click=${async () => { if (this.query !== q) { this.query = q; await this.updateComplete; this.search()} }} ?selected=${this.query === q}>${q}</span>`
-      })}
+    <div class=card>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <p style="margin-left:24px">History</p>
+        <div style="flex:1"></div>
+        <mwc-icon-button icon="delete"
+            ?hide=${!this.query || !this.history.includes(this.query)}
+            @click=${() => { this.history.splice(this.history.indexOf(this.textfield.value), 1); this.saveHistory() }}></mwc-icon-button>
+        <mwc-icon-button icon="download" @click=${() => { this.downloadHistory() }}></mwc-icon-button>
+      </div>
+      <div id=history>
+        ${this.history.filter(el => el).map((q) => {
+          return html`<span class=query @click=${async () => { if (this.query !== q) { this.query = q; await this.updateComplete; this.search()} }} ?selected=${this.query === q}>${q}</span>`
+        })}
+      </div>
     </div>
     `
+  }
+
+  addInputAsATag () {
+    if (this.textfield.value !== '') {
+      if (this.currentDocument!.content.includes(this.textfield.value)) {
+        window.toast('this item already exists')
+        return
+      }
+      this.currentDocument!.content.push(this.textfield.value)
+      this.requestUpdate()
+    }
   }
 
   async search () {
@@ -335,7 +394,6 @@ export class LangRoutes extends LitElement {
   }
 
   private async onTextFieldKeyup (e) {
-    if (this.textfield.value === '') { return }
     if (e.key === 'Enter') {
       this.search()
       this.textfield.blur()

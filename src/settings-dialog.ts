@@ -21,9 +21,8 @@ export class SettingsDialog extends LitElement {
   constructor () {
     super();
     const settings = JSON.parse(localStorage.getItem('settings') || '{}')
-    if (Object.getOwnPropertyNames(settings).length !== 0) {
-      this.fontSize = settings.fontSize
-    }
+    this.fontSize = settings?.fontSize || 12;
+    this.maxHeight = settings?.maxHeight || 400;
   }
 
   render () {
@@ -43,9 +42,9 @@ export class SettingsDialog extends LitElement {
       <div>
         <span>Tags container max-height (${this.maxHeight}px)</span>
         <mwc-slider
-          value=${this.maxHeight}
-          min="100"
-          max="500"
+          value=${this.maxHeight || 400}
+          min="200"
+          max="900"
           @input=${(e) => { this.maxHeight = e.detail.value; window.app.requestUpdate(); this.save() }}
         >
         </mwc-slider>
@@ -57,7 +56,7 @@ export class SettingsDialog extends LitElement {
 
   protected firstUpdated(_changedProperties: Map<string | number | symbol, unknown>): void {
       this.shadowRoot!.querySelector('mwc-dialog')!.addEventListener('opened', () => {
-        this.shadowRoot!.querySelector('mwc-slider')!.layout()
+        this.shadowRoot!.querySelectorAll('mwc-slider')!.forEach(el => el.layout())
       })
   }
 

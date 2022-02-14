@@ -32,15 +32,17 @@ export class TagDialog extends LitElement {
     const alreadyExist = window.app.currentDocument!.content.includes(this.tagValue)
 
     render(html`
-      <mwc-textarea style="width:100%" dialogInitialFocus
+      <mwc-textarea style="width:100%;--mdc-text-field-label-ink-color:red" dialogInitialFocus
         rows=12
+        helperPersistent
+        helper=${alreadyExist ? 'already exists' : ' '}
         @keyup=${(e: KeyboardEvent) => { this.onTextAreaKeyup(e) }}
         value=${this.tagValue}
       ></mwc-textarea>
 
       <mwc-button outlined slot="secondaryAction" dialogAction="close">cancel</mwc-button>
       <mwc-button unelevated slot="primaryAction"
-        ?disabled=${!this.tagValue}
+        ?disabled=${!this.tagValue || alreadyExist}
         @click=${() => { this.submit() }}>${this.type}</mwc-button>
     `,
     this.dialog)
@@ -58,8 +60,9 @@ export class TagDialog extends LitElement {
   }
 
   private onTextAreaKeyup(e: KeyboardEvent) {
-    if (e.ctrlKey && e.key === 'Enter' && this.tagValue !== '') {
-      this.shadowRoot!.querySelector<Button>('mwc-button[slot=primaryAction]')!.click()
+    const button = this.shadowRoot!.querySelector<Button>('mwc-button[slot=primaryAction]')!
+    if (e.ctrlKey && e.key === 'Enter' && this.tagValue !== '' && !button.disabled) {
+      button.click()
       return
     }
     // We verify the tag doesn't already exist

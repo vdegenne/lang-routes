@@ -86,12 +86,13 @@ export class LangRoutes extends LitElement {
   static styles = [
     css`
     :host {
+      display: block;
       /* display: flex;
       flex-direction: column; */
       /* align-items: center; */
       /* width:-webkit-fill-available; */
       height: 85%;
-      max-width: 600px;
+      max-width: 682px;
       margin: 0 auto;
     }
     [hide] {

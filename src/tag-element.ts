@@ -19,13 +19,13 @@ export class TagElement extends LitElement {
   static styles = css`
   :host {
     display: inline-block;
-    padding: 2px 6px;
-    border-radius: 2px;
-    box-shadow: 2px 2px 7px -3px #0000004f;
+    padding: 3px 8px;
+    border-radius: 6px;
+    box-shadow: rgb(0 0 0 / 31%) 2px 2px 7px -3px;
     cursor: pointer;
-    background-color: #37474f;
+    background-color: rgb(55, 71, 79);
     color: white;
-    margin: 4px;
+    margin: 3px;
   }
 
   :host([selected]) {

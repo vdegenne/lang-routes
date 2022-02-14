@@ -84,6 +84,12 @@ export class QuickSearch extends LitElement {
         this.textfield.focus()
       }, 500)
     })
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'Escape' && window.strokesDialog.dialog.open === false) {
+        this._dialog.close()
+      }
+    })
   }
 
   public addToHistory(query: string) {
@@ -93,7 +99,7 @@ export class QuickSearch extends LitElement {
 
   render () {
     return html`
-      <mwc-dialog scrimClickAction="" escapeKeyAction="">
+      <mwc-dialog escapeKeyAction="">
         <div style="display:flex;align-items:flex-start">
           <mwc-textfield placeholder="search"
             helperPersistent

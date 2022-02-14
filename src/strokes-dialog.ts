@@ -18,9 +18,19 @@ export class StrokesDialog extends LitElement {
   @query('mwc-circular-progress') progress!: CircularProgress;
   @queryAll('img') imgs!: HTMLImageElement[];
 
+
+  constructor () {
+    super()
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        setTimeout(() => this.dialog.close(), 100)
+      }
+    })
+  }
+
   render () {
     return html`
-    <mwc-dialog heading="Strokes" style="text-align:center">
+    <mwc-dialog heading="Strokes" style="text-align:center" escapeKeyAction="">
       ${this.query.split('').map(letter => html`<img src="https://assiets.vdegenne.com/data/chinese/img/${letter}.gif">`)}
       <br>
       <mwc-circular-progress indeterminate></mwc-circular-progress>

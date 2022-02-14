@@ -18994,6 +18994,11 @@ let QuickSearch = class QuickSearch extends s$1 {
                 this.textfield.focus();
             }, 500);
         });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'Escape' && window.strokesDialog.dialog.open === false) {
+                this._dialog.close();
+            }
+        });
     }
     addToHistory(query) {
         this.history = [...new Set([query].concat(this.history))];
@@ -19001,7 +19006,7 @@ let QuickSearch = class QuickSearch extends s$1 {
     }
     render() {
         return p `
-      <mwc-dialog scrimClickAction="" escapeKeyAction="">
+      <mwc-dialog escapeKeyAction="">
         <div style="display:flex;align-items:flex-start">
           <mwc-textfield placeholder="search"
             helperPersistent
@@ -21655,13 +21660,18 @@ CircularProgress = __decorate([
 
 let StrokesDialog = class StrokesDialog extends s$1 {
     constructor() {
-        super(...arguments);
+        super();
         this.query = '';
         this.loading = true;
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                setTimeout(() => this.dialog.close(), 100);
+            }
+        });
     }
     render() {
         return p `
-    <mwc-dialog heading="Strokes" style="text-align:center">
+    <mwc-dialog heading="Strokes" style="text-align:center" escapeKeyAction="">
       ${this.query.split('').map(letter => p `<img src="https://assiets.vdegenne.com/data/chinese/img/${letter}.gif">`)}
       <br>
       <mwc-circular-progress indeterminate></mwc-circular-progress>
@@ -21848,17 +21858,19 @@ let TagDialog = class TagDialog extends s$1 {
             return this.dialog;
         }
         this.dialog.heading = `${this.type} tag`;
-        window.app.currentDocument.content.includes(this.tagValue);
+        const alreadyExist = window.app.currentDocument.content.includes(this.tagValue);
         w(p `
-      <mwc-textarea style="width:100%" dialogInitialFocus
+      <mwc-textarea style="width:100%;--mdc-text-field-label-ink-color:red" dialogInitialFocus
         rows=12
+        helperPersistent
+        helper=${alreadyExist ? 'already exists' : ' '}
         @keyup=${(e) => { this.onTextAreaKeyup(e); }}
         value=${this.tagValue}
       ></mwc-textarea>
 
       <mwc-button outlined slot="secondaryAction" dialogAction="close">cancel</mwc-button>
       <mwc-button unelevated slot="primaryAction"
-        ?disabled=${!this.tagValue}
+        ?disabled=${!this.tagValue || alreadyExist}
         @click=${() => { this.submit(); }}>${this.type}</mwc-button>
     `, this.dialog);
         return this.dialog;
@@ -21871,8 +21883,9 @@ let TagDialog = class TagDialog extends s$1 {
         window.app.requestUpdate();
     }
     onTextAreaKeyup(e) {
-        if (e.ctrlKey && e.key === 'Enter' && this.tagValue !== '') {
-            this.shadowRoot.querySelector('mwc-button[slot=primaryAction]').click();
+        const button = this.shadowRoot.querySelector('mwc-button[slot=primaryAction]');
+        if (e.ctrlKey && e.key === 'Enter' && this.tagValue !== '' && !button.disabled) {
+            button.click();
             return;
         }
         // We verify the tag doesn't already exist
@@ -21919,13 +21932,13 @@ let TagElement = class TagElement extends s$1 {
 TagElement.styles = r$3 `
   :host {
     display: inline-block;
-    padding: 2px 6px;
-    border-radius: 2px;
-    box-shadow: 2px 2px 7px -3px #0000004f;
+    padding: 3px 8px;
+    border-radius: 6px;
+    box-shadow: rgb(0 0 0 / 31%) 2px 2px 7px -3px;
     cursor: pointer;
-    background-color: #37474f;
+    background-color: rgb(55, 71, 79);
     color: white;
-    margin: 4px;
+    margin: 3px;
   }
 
   :host([selected]) {
@@ -22130,12 +22143,13 @@ let LangRoutes = class LangRoutes extends s$1 {
 LangRoutes.styles = [
     r$3 `
     :host {
+      display: block;
       /* display: flex;
       flex-direction: column; */
       /* align-items: center; */
       /* width:-webkit-fill-available; */
       height: 85%;
-      max-width: 600px;
+      max-width: 682px;
       margin: 0 auto;
     }
     [hide] {

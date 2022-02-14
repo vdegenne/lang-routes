@@ -19,6 +19,15 @@ export class TagElement extends LitElement {
   static styles = css`
   :host {
     display: inline-block;
+    padding: 2px 6px;
+    border-radius: 2px;
+    box-shadow: 2px 2px 7px -3px #0000004f;
+    cursor: pointer;
+    background-color: #37474f;
+    color: white;
+    margin: 4px;
+
+    display: inline-block;
     padding: 3px 8px;
     border-radius: 6px;
     box-shadow: rgb(0 0 0 / 31%) 2px 2px 7px -3px;
@@ -42,13 +51,13 @@ export class TagElement extends LitElement {
     this.addEventListener('click', (e) => {
       tags.forEach(el => el.selected = false)
       this.selected = true;
-      window.app.requestUpdate()
+      // window.app.requestUpdate()
       e.stopPropagation()
     })
   }
 }
 
-window.document.body.addEventListener('click', () => {
-  tags.forEach(el => el.selected = false)
-  window.app.requestUpdate()
-})
+// window.document.body.addEventListener('click', () => {
+//   tags.forEach(el => el.selected = false)
+//   window.app.requestUpdate()
+// })

@@ -13,6 +13,9 @@ import { live } from 'lit/directives/live.js'
 import './settings-dialog'
 import './global-declarations'
 import { TagElement } from './tag-element'
+import { TextField } from '@material/mwc-textfield'
+import { hasChinese, isFullJapanese } from 'asian-regexps'
+import html2canvas from 'html2canvas'
 
 
 @customElement('lang-routes')
@@ -24,12 +27,15 @@ export class LangRoutes extends LitElement {
   private _documents: Document[] = []
 
   @state()
-  private _selected = ''
+  private query = ''
 
-  @query('textarea') _textarea!: HTMLTextAreaElement;
+  private history: string[] = localStorage.getItem('lang-routes:history') ? JSON.parse(localStorage.getItem('lang-routes:history')!.toString()) : []
+
+  @query('mwc-textfield') textfield!: TextField;
   @query('#textContainer') _textContainer!: HTMLParagraphElement;
   @query('tag-element[selected]') selectedTagElement!: TagElement;
-  // @query('search-panel') searchPanel!: SearchPanel;
+  @query('#history') historyBox!: HTMLDivElement;
+  @query('search-panel') searchPanel!: SearchPanel;
 
   constructor() {
     super()
@@ -49,7 +55,7 @@ export class LangRoutes extends LitElement {
         window.quickSearch.searchPanel.sendKey(e.key)
       }
       else {
-        // this.searchPanel.sendKey(e.key)
+        this.searchPanel.sendKey(e.key)
       }
     })
   }
@@ -60,15 +66,15 @@ export class LangRoutes extends LitElement {
   }
 
   firstUpdated() {
-    const selectFunction = () => {
-      if (this._locked && this.currentDocument && !window.quickSearch._dialog.open) {
-        const selection = getSelection().trim()
-        if (selection) {
-          this._selected = selection
-        }
-      }
-    }
-    setInterval(selectFunction, 500)
+    // const selectFunction = () => {
+    //   if (this._locked && this.currentDocument && !window.quickSearch._dialog.open) {
+    //     const selection = getSelection().trim()
+    //     if (selection) {
+    //       this._selected = selection
+    //     }
+    //   }
+    // }
+    // setInterval(selectFunction, 500)
     // this._textContainer.addEventListener('mouseup', selectFunction)
     // this._textContainer.addEventListener('touchend', selectFunction)
     // window.addEventListener('pointerup', e => {
@@ -77,7 +83,7 @@ export class LangRoutes extends LitElement {
     // this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
 
     window.addEventListener('keyup', (e) => {
-      if (e.key === 'Enter' && this._locked && this._selected !== '') {
+      if (e.key === 'Enter' && this._locked && this.query !== '') {
         // (this.shadowRoot!.querySelector('search-panel') as SearchPanel).openFirstSearch()
       }
     })
@@ -153,9 +159,33 @@ export class LangRoutes extends LitElement {
     }
 
     #tags {
+      display: inline-block;
+      overflow: auto;
+      width: 100%;
+      padding: 22px 0 0 22px;
+      border-bottom: 1px solid #e0e0e0bb;
+      box-sizing: border-box;
+    }
+
+    #history {
       display: flex;
       flex-wrap: wrap;
-      margin: 22px;
+      align-items: center;
+      /* margin: 18px 0 0 0; */
+    }
+    #history .query {
+      background-color: #e0e0e0;
+      padding: 3px 7px;
+      margin: 3px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .query[selected] {
+      background-color: #ffee58 !important;
+      color: black;
+    }
+    [hide] {
+      display: none;
     }
     `
   ]
@@ -182,6 +212,8 @@ export class LangRoutes extends LitElement {
       doc.content = [doc.content]
     }
 
+    console.log(`rendered : ${this.query}`)
+
     /* If there is a selected document (from the hash) */
     return html`
     <header id="topbar">
@@ -196,20 +228,20 @@ export class LangRoutes extends LitElement {
         <mwc-icon-button icon="note_add"
           @click=${() => this.createNewDocument()}></mwc-icon-button>
         <mwc-icon-button icon="search" @click=${() => window.quickSearch.open()}></mwc-icon-button>
-        <mwc-icon-button-toggle onIcon="lock" offIcon="lock_open" @click=${() => {this._locked = !this._locked; if (!this._locked) { setTimeout(() => this._textarea.focus(), 100) }}} style="color:${this._locked ? 'green': 'red'}" ?on=${this._locked}></mwc-icon-button-toggle>
         <mwc-icon-button icon="settings"
           @click=${() => window.settingsDialog.show()}></mwc-icon-button>
       </div>
     </header>
 
-    <center>
-    <mwc-button raised
+    <center style="margin:12px">
+    <mwc-button raised icon="label" dense
       @click=${() => { window.tagDialog.open() }}>add a tag</mwc-button>
     </center>
 
-    <div id="tags">
+    <div id="tags" style="height:${window.settingsDialog.maxHeight}px">
     ${doc.content.map(tag => {
-      return html`<tag-element content=${tag}></tag-element>`
+      return html`<tag-element content=${tag}
+        @click=${async (e) => { this.query = tag; await this.updateComplete; this.search() }}></tag-element>`
     })}
     </div>
 
@@ -217,21 +249,107 @@ export class LangRoutes extends LitElement {
       <span style="white-space:pre-wrap">${doc.content}</span>
     </div> -->
 
-    <!-- <search-panel .query=${live(this._selected)}></search-panel> -->
+    <div style="display:flex;align-items:flex-start">
+      <mwc-textfield placeholder="search" style="flex:1"
+        helperPersistent
+        value=${live(this.query)}
+        @keyup=${(e) => { this.onTextFieldKeyup(e) }}
+        ></mwc-textfield>
+      <mwc-icon-button icon="close" style="margin:6px"
+        @click=${() => { this.onCloseIconClick() }}></mwc-icon-button>
+    </div>
 
-    <mwc-icon-button icon="search" style="margin-left:24px"
-      ?disabled=${this.selectedTagElement === null}
-      @click=${() => { this.onSearchClick() }}></mwc-icon-button>
+    <search-panel .query=${live(this.query)}></search-panel>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px">
+      <p style="font-weight:bold">History</p>
+      <div style="flex:1"></div>
+      <mwc-icon-button icon="delete"
+          ?hide=${!this.query || !this.history.includes(this.query)}
+          @click=${() => { this.history.splice(this.history.indexOf(this.textfield.value), 1); this.saveHistory() }}></mwc-icon-button>
+      <mwc-icon-button icon="download" @click=${() => { this.downloadHistory() }}></mwc-icon-button>
+    </div>
+    <div id=history>
+      ${this.history.filter(el => el).map((q) => {
+        return html`<span class=query @click=${async () => { if (this.query !== q) { this.query = q; await this.updateComplete; this.search()} }} ?selected=${this.query === q}>${q}</span>`
+      })}
+    </div>
     `
   }
 
-  private onSearchClick() {
-    const tagEl = this.selectedTagElement
-    if (tagEl) {
-      window.quickSearch.query = tagEl.content;
-      window.quickSearch.search()
+  async search () {
+    const query = this.textfield.value;
+    if (query === '') { return }
+    this.addToHistory(query)
+    if (isFullJapanese(query) && hasChinese(query)) {
+      this.textfield.helper = ''
+      if (query in window.dataManager.flats) {
+        this.textfield.helper = window.dataManager.flats[query]
+      }
+      else {
+        // if (this._flattenDebouncer) {
+        //   clearTimeout(this._flattenDebouncer)
+        //   this._flattenDebouncer = undefined
+        // }
+        // this._flattenDebouncer = setTimeout(async () => {
+          try {
+            const response = await fetch(`https://assiets.vdegenne.com/data/japanese/flatten/${query}`)
+            if (response.status !== 200) {
+              throw new Error()
+            }
+            const content = await response.text()
+            this.textfield.helper = content
+            window.dataManager.flats[query] = content
+            window.dataManager.save()
+          }
+          catch (e) {
+          }
+        // }, 1500)
+      }
     }
-    window.quickSearch.open()
+    else {
+      this.textfield.helper = ''
+    }
+  }
+
+  // private onSearchClick() {
+  //   const tagEl = this.selectedTagElement
+  //   if (tagEl) {
+  //     window.quickSearch.query = tagEl.content;
+  //     window.quickSearch.search()
+  //   }
+  //   window.quickSearch.open()
+  // }
+
+  private onTextFieldChange () {
+    // await this.updateComplete
+    this.query = this.textfield.value;
+    // Initiate a search to resolve the Japanese word to full japanese
+    // If the word is full japanese already (without kanjis within) do nothing
+    if (this.query in window.dataManager.flats) {
+      this.textfield.helper = window.dataManager.flats[this.query]
+    }
+    else {
+      this.textfield.helper = ''
+    }
+  }
+
+  private async onTextFieldKeyup (e) {
+    if (this.textfield.value === '') { return }
+    if (e.key === 'Enter') {
+      this.search()
+      this.textfield.blur()
+      this.searchPanel.openFirstSearch()
+      return;
+    }
+    this.onTextFieldChange()
+    this.searchPanel.closeAllMenus()
+  }
+
+  private onCloseIconClick() {
+    this.query = ''
+    // this.textfield.value = ''
+    this.textfield.focus()
   }
 
   private _textAreaDebouncer?: NodeJS.Timeout;
@@ -283,6 +401,11 @@ export class LangRoutes extends LitElement {
     return id;
   }
 
+  public addToHistory(query: string) {
+    this.history = [...new Set([query].concat(this.history))]
+    this.saveHistory()
+  }
+
   private async load () {
     // Try to get the data remotely
     try {
@@ -304,6 +427,19 @@ export class LangRoutes extends LitElement {
     catch (e) {}
     // Also save locally in any case
     localStorage.setItem('documents', JSON.stringify(this._documents))
+  }
+
+  private saveHistory () {
+    localStorage.setItem('lang-routes:history', JSON.stringify(this.history))
+    this.requestUpdate()
+  }
+
+  async downloadHistory () {
+    const canvas = await html2canvas(this.historyBox)
+    const anchor = document.createElement('a')
+    anchor.href = canvas.toDataURL()
+    anchor.download = 'history.png'
+    anchor.click()
   }
 
   // private onTextAreaChange() {

@@ -1925,59 +1925,6 @@ IconButtonToggle = __decorate([
     n$1('mwc-icon-button-toggle')
 ], IconButtonToggle);
 
-function getSelection() {
-    var _a;
-    var text = '';
-    if ('getSelection' in window) {
-        text = ((_a = window.getSelection()) === null || _a === void 0 ? void 0 : _a.toString()) || '';
-    }
-    // } else if (document.selection && document.selection.type != "Control") {
-    //     text = document.selection.createRange().text;
-    // }
-    return text;
-}
-/* Search Functions */
-function naverJapSearch(word) {
-    if (word === '')
-        return;
-    window.open(`https://ja.dict.naver.com/#/search?query=${encodeURIComponent(word)}`, '_blank');
-}
-function naverHanjaSearch(word) {
-    if (word === '')
-        return;
-    window.open(`https://hanja.dict.naver.com/#/search?query=${encodeURIComponent(word)}`, '_blank');
-}
-function naverKoreanSearch(word) {
-    if (word === '')
-        return;
-    window.open(`https://ko.dict.naver.com/#/search?query=${encodeURIComponent(word)}`, '_blank');
-}
-function jishoSearch(word) {
-    if (word === '')
-        return;
-    window.open(`https://jisho.org/search/${encodeURIComponent(word)}`, '_blank');
-}
-function googleImagesSearch(word) {
-    if (word === '')
-        return;
-    window.open(`https://www.google.com/search?q=${word}&sxsrf=ALeKk03OpIy5MDwB0ZOXkqgulfVCIk8WYw:1585268139694&source=lnms&tbm=isch&sa=X`, '_blank');
-}
-function writtenChineseSearch(word) {
-    if (word === '')
-        return;
-    window.open(`https://dictionary.writtenchinese.com/#sk=${encodeURIComponent(word)}&svt=pinyin`, '_blank');
-}
-function mdbgSearch(word) {
-    if (!word)
-        return;
-    window.open(`https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=${encodeURIComponent(word)}`, '_blank');
-}
-function googleTranslateSearch(word) {
-    if (!word)
-        return;
-    window.open(`https://translate.google.com/?sl=auto&text=${encodeURIComponent(word)}&op=translate`, '_blank');
-}
-
 /**
  * @license
  * Copyright 2016 Google Inc. All rights reserved.
@@ -6137,6 +6084,48 @@ TextField.styles = [styles$9];
 TextField = __decorate([
     n$1('mwc-textfield')
 ], TextField);
+
+/* Search Functions */
+function naverJapSearch(word) {
+    if (word === '')
+        return;
+    window.open(`https://ja.dict.naver.com/#/search?query=${encodeURIComponent(word)}`, '_blank');
+}
+function naverHanjaSearch(word) {
+    if (word === '')
+        return;
+    window.open(`https://hanja.dict.naver.com/#/search?query=${encodeURIComponent(word)}`, '_blank');
+}
+function naverKoreanSearch(word) {
+    if (word === '')
+        return;
+    window.open(`https://ko.dict.naver.com/#/search?query=${encodeURIComponent(word)}`, '_blank');
+}
+function jishoSearch(word) {
+    if (word === '')
+        return;
+    window.open(`https://jisho.org/search/${encodeURIComponent(word)}`, '_blank');
+}
+function googleImagesSearch(word) {
+    if (word === '')
+        return;
+    window.open(`https://www.google.com/search?q=${word}&sxsrf=ALeKk03OpIy5MDwB0ZOXkqgulfVCIk8WYw:1585268139694&source=lnms&tbm=isch&sa=X`, '_blank');
+}
+function writtenChineseSearch(word) {
+    if (word === '')
+        return;
+    window.open(`https://dictionary.writtenchinese.com/#sk=${encodeURIComponent(word)}&svt=pinyin`, '_blank');
+}
+function mdbgSearch(word) {
+    if (!word)
+        return;
+    window.open(`https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=${encodeURIComponent(word)}`, '_blank');
+}
+function googleTranslateSearch(word) {
+    if (!word)
+        return;
+    window.open(`https://translate.google.com/?sl=auto&text=${encodeURIComponent(word)}&op=translate`, '_blank');
+}
 
 var chineseRegStringExp = '[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]';
 var japaneseRegStringExp = '[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]';
@@ -18962,9 +18951,9 @@ let QuickSearch = class QuickSearch extends s$1 {
         super();
         this.query = '';
         this.history = localStorage.getItem('lang-routes:history') ? JSON.parse(localStorage.getItem('lang-routes:history').toString()) : [];
-        window.addEventListener('searched', (e) => {
-            this.addToHistory(e.detail.query);
-        });
+        // window.addEventListener('searched', (e: Event) => {
+        //   this.addToHistory((e as CustomEvent).detail.query);
+        // })
         let _blurTimestamp = undefined;
         let _focusDebouncer = undefined;
         const clearFocusDebouncer = function () {
@@ -20889,6 +20878,7 @@ let SettingsDialog = class SettingsDialog extends s$1 {
     constructor() {
         super();
         this.fontSize = 12;
+        this.maxHeight = 100;
         const settings = JSON.parse(localStorage.getItem('settings') || '{}');
         if (Object.getOwnPropertyNames(settings).length !== 0) {
             this.fontSize = settings.fontSize;
@@ -20904,6 +20894,17 @@ let SettingsDialog = class SettingsDialog extends s$1 {
           min="12"
           max="70"
           @input=${(e) => this.onSliderInput(e)}
+        >
+        </mwc-slider>
+      </div>
+
+      <div>
+        <span>Tags container max-height (${this.maxHeight}px)</span>
+        <mwc-slider
+          value=${this.maxHeight}
+          min="100"
+          max="500"
+          @input=${(e) => { this.maxHeight = e.detail.value; window.app.requestUpdate(); this.save(); }}
         >
         </mwc-slider>
       </div>
@@ -20939,6 +20940,9 @@ SettingsDialog.styles = r$3 `
 __decorate([
     t$1()
 ], SettingsDialog.prototype, "fontSize", void 0);
+__decorate([
+    t$1()
+], SettingsDialog.prototype, "maxHeight", void 0);
 __decorate([
     i$6('mwc-dialog')
 ], SettingsDialog.prototype, "dialog", void 0);
@@ -21924,13 +21928,22 @@ let TagElement = class TagElement extends s$1 {
         this.addEventListener('click', (e) => {
             tags.forEach(el => el.selected = false);
             this.selected = true;
-            window.app.requestUpdate();
+            // window.app.requestUpdate()
             e.stopPropagation();
         });
     }
 };
 TagElement.styles = r$3 `
   :host {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 2px;
+    box-shadow: 2px 2px 7px -3px #0000004f;
+    cursor: pointer;
+    background-color: #37474f;
+    color: white;
+    margin: 4px;
+
     display: inline-block;
     padding: 3px 8px;
     border-radius: 6px;
@@ -21955,18 +21968,18 @@ __decorate([
 TagElement = __decorate([
     n$1('tag-element')
 ], TagElement);
-window.document.body.addEventListener('click', () => {
-    tags.forEach(el => el.selected = false);
-    window.app.requestUpdate();
-});
+// window.document.body.addEventListener('click', () => {
+//   tags.forEach(el => el.selected = false)
+//   window.app.requestUpdate()
+// })
 
 let LangRoutes = class LangRoutes extends s$1 {
-    // @query('search-panel') searchPanel!: SearchPanel;
     constructor() {
         super();
         this._locked = true;
         this._documents = [];
-        this._selected = '';
+        this.query = '';
+        this.history = localStorage.getItem('lang-routes:history') ? JSON.parse(localStorage.getItem('lang-routes:history').toString()) : [];
         this.load();
         window.addEventListener('hashchange', (e) => {
             this.requestUpdate();
@@ -21979,6 +21992,9 @@ let LangRoutes = class LangRoutes extends s$1 {
             if (window.quickSearch.opened) {
                 window.quickSearch.searchPanel.sendKey(e.key);
             }
+            else {
+                this.searchPanel.sendKey(e.key);
+            }
         });
     }
     get currentDocument() {
@@ -21987,15 +22003,15 @@ let LangRoutes = class LangRoutes extends s$1 {
         return this._documents.find(d => parseInt(window.location.hash.slice(1)) === d.id);
     }
     firstUpdated() {
-        const selectFunction = () => {
-            if (this._locked && this.currentDocument && !window.quickSearch._dialog.open) {
-                const selection = getSelection().trim();
-                if (selection) {
-                    this._selected = selection;
-                }
-            }
-        };
-        setInterval(selectFunction, 500);
+        // const selectFunction = () => {
+        //   if (this._locked && this.currentDocument && !window.quickSearch._dialog.open) {
+        //     const selection = getSelection().trim()
+        //     if (selection) {
+        //       this._selected = selection
+        //     }
+        //   }
+        // }
+        // setInterval(selectFunction, 500)
         // this._textContainer.addEventListener('mouseup', selectFunction)
         // this._textContainer.addEventListener('touchend', selectFunction)
         // window.addEventListener('pointerup', e => {
@@ -22003,7 +22019,7 @@ let LangRoutes = class LangRoutes extends s$1 {
         // })
         // this._textarea.addEventListener('selectstart', e => alert('select start !!!!'))
         window.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter' && this._locked && this._selected !== '') ;
+            if (e.key === 'Enter' && this._locked && this.query !== '') ;
         });
     }
     loadDocument(document) {
@@ -22025,6 +22041,7 @@ let LangRoutes = class LangRoutes extends s$1 {
         if (!(doc.content instanceof Array)) {
             doc.content = [doc.content];
         }
+        console.log(`rendered : ${this.query}`);
         /* If there is a selected document (from the hash) */
         return p `
     <header id="topbar">
@@ -22040,22 +22057,20 @@ let LangRoutes = class LangRoutes extends s$1 {
         <mwc-icon-button icon="note_add"
           @click=${() => this.createNewDocument()}></mwc-icon-button>
         <mwc-icon-button icon="search" @click=${() => window.quickSearch.open()}></mwc-icon-button>
-        <mwc-icon-button-toggle onIcon="lock" offIcon="lock_open" @click=${() => { this._locked = !this._locked; if (!this._locked) {
-            setTimeout(() => this._textarea.focus(), 100);
-        } }} style="color:${this._locked ? 'green' : 'red'}" ?on=${this._locked}></mwc-icon-button-toggle>
         <mwc-icon-button icon="settings"
           @click=${() => window.settingsDialog.show()}></mwc-icon-button>
       </div>
     </header>
 
-    <center>
-    <mwc-button raised
+    <center style="margin:12px">
+    <mwc-button raised icon="label" dense
       @click=${() => { window.tagDialog.open(); }}>add a tag</mwc-button>
     </center>
 
-    <div id="tags">
+    <div id="tags" style="height:${window.settingsDialog.maxHeight}px">
     ${doc.content.map(tag => {
-            return p `<tag-element content=${tag}></tag-element>`;
+            return p `<tag-element content=${tag}
+        @click=${async (e) => { this.query = tag; await this.updateComplete; this.search(); }}></tag-element>`;
         })}
     </div>
 
@@ -22063,20 +22078,110 @@ let LangRoutes = class LangRoutes extends s$1 {
       <span style="white-space:pre-wrap">${doc.content}</span>
     </div> -->
 
-    <!-- <search-panel .query=${l$1(this._selected)}></search-panel> -->
+    <div style="display:flex;align-items:flex-start">
+      <mwc-textfield placeholder="search" style="flex:1"
+        helperPersistent
+        value=${l$1(this.query)}
+        @keyup=${(e) => { this.onTextFieldKeyup(e); }}
+        ></mwc-textfield>
+      <mwc-icon-button icon="close" style="margin:6px"
+        @click=${() => { this.onCloseIconClick(); }}></mwc-icon-button>
+    </div>
 
-    <mwc-icon-button icon="search" style="margin-left:24px"
-      ?disabled=${this.selectedTagElement === null}
-      @click=${() => { this.onSearchClick(); }}></mwc-icon-button>
+    <search-panel .query=${l$1(this.query)}></search-panel>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px">
+      <p style="font-weight:bold">History</p>
+      <div style="flex:1"></div>
+      <mwc-icon-button icon="delete"
+          ?hide=${!this.query || !this.history.includes(this.query)}
+          @click=${() => { this.history.splice(this.history.indexOf(this.textfield.value), 1); this.saveHistory(); }}></mwc-icon-button>
+      <mwc-icon-button icon="download" @click=${() => { this.downloadHistory(); }}></mwc-icon-button>
+    </div>
+    <div id=history>
+      ${this.history.filter(el => el).map((q) => {
+            return p `<span class=query @click=${async () => { if (this.query !== q) {
+                this.query = q;
+                await this.updateComplete;
+                this.search();
+            } }} ?selected=${this.query === q}>${q}</span>`;
+        })}
+    </div>
     `;
     }
-    onSearchClick() {
-        const tagEl = this.selectedTagElement;
-        if (tagEl) {
-            window.quickSearch.query = tagEl.content;
-            window.quickSearch.search();
+    async search() {
+        const query = this.textfield.value;
+        if (query === '') {
+            return;
         }
-        window.quickSearch.open();
+        this.addToHistory(query);
+        if (isFullJapanese(query) && hasChinese(query)) {
+            this.textfield.helper = '';
+            if (query in window.dataManager.flats) {
+                this.textfield.helper = window.dataManager.flats[query];
+            }
+            else {
+                // if (this._flattenDebouncer) {
+                //   clearTimeout(this._flattenDebouncer)
+                //   this._flattenDebouncer = undefined
+                // }
+                // this._flattenDebouncer = setTimeout(async () => {
+                try {
+                    const response = await fetch(`https://assiets.vdegenne.com/data/japanese/flatten/${query}`);
+                    if (response.status !== 200) {
+                        throw new Error();
+                    }
+                    const content = await response.text();
+                    this.textfield.helper = content;
+                    window.dataManager.flats[query] = content;
+                    window.dataManager.save();
+                }
+                catch (e) {
+                }
+                // }, 1500)
+            }
+        }
+        else {
+            this.textfield.helper = '';
+        }
+    }
+    // private onSearchClick() {
+    //   const tagEl = this.selectedTagElement
+    //   if (tagEl) {
+    //     window.quickSearch.query = tagEl.content;
+    //     window.quickSearch.search()
+    //   }
+    //   window.quickSearch.open()
+    // }
+    onTextFieldChange() {
+        // await this.updateComplete
+        this.query = this.textfield.value;
+        // Initiate a search to resolve the Japanese word to full japanese
+        // If the word is full japanese already (without kanjis within) do nothing
+        if (this.query in window.dataManager.flats) {
+            this.textfield.helper = window.dataManager.flats[this.query];
+        }
+        else {
+            this.textfield.helper = '';
+        }
+    }
+    async onTextFieldKeyup(e) {
+        if (this.textfield.value === '') {
+            return;
+        }
+        if (e.key === 'Enter') {
+            this.search();
+            this.textfield.blur();
+            this.searchPanel.openFirstSearch();
+            return;
+        }
+        this.onTextFieldChange();
+        this.searchPanel.closeAllMenus();
+    }
+    onCloseIconClick() {
+        this.query = '';
+        // this.textfield.value = ''
+        this.textfield.focus();
     }
     onTextAreaChange(e) {
         this.currentDocument.content = e.target.value;
@@ -22117,6 +22222,10 @@ let LangRoutes = class LangRoutes extends s$1 {
             id++;
         return id;
     }
+    addToHistory(query) {
+        this.history = [...new Set([query].concat(this.history))];
+        this.saveHistory();
+    }
     async load() {
         // Try to get the data remotely
         try {
@@ -22138,6 +22247,17 @@ let LangRoutes = class LangRoutes extends s$1 {
         catch (e) { }
         // Also save locally in any case
         localStorage.setItem('documents', JSON.stringify(this._documents));
+    }
+    saveHistory() {
+        localStorage.setItem('lang-routes:history', JSON.stringify(this.history));
+        this.requestUpdate();
+    }
+    async downloadHistory() {
+        const canvas = await html2canvas(this.historyBox);
+        const anchor = document.createElement('a');
+        anchor.href = canvas.toDataURL();
+        anchor.download = 'history.png';
+        anchor.click();
     }
 };
 LangRoutes.styles = [
@@ -22210,9 +22330,33 @@ LangRoutes.styles = [
     }
 
     #tags {
+      display: inline-block;
+      overflow: auto;
+      width: 100%;
+      padding: 22px 0 0 22px;
+      border-bottom: 1px solid #e0e0e0bb;
+      box-sizing: border-box;
+    }
+
+    #history {
       display: flex;
       flex-wrap: wrap;
-      margin: 22px;
+      align-items: center;
+      /* margin: 18px 0 0 0; */
+    }
+    #history .query {
+      background-color: #e0e0e0;
+      padding: 3px 7px;
+      margin: 3px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .query[selected] {
+      background-color: #ffee58 !important;
+      color: black;
+    }
+    [hide] {
+      display: none;
     }
     `
 ];
@@ -22224,16 +22368,22 @@ __decorate([
 ], LangRoutes.prototype, "_documents", void 0);
 __decorate([
     e$6()
-], LangRoutes.prototype, "_selected", void 0);
+], LangRoutes.prototype, "query", void 0);
 __decorate([
-    i$6('textarea')
-], LangRoutes.prototype, "_textarea", void 0);
+    i$6('mwc-textfield')
+], LangRoutes.prototype, "textfield", void 0);
 __decorate([
     i$6('#textContainer')
 ], LangRoutes.prototype, "_textContainer", void 0);
 __decorate([
     i$6('tag-element[selected]')
 ], LangRoutes.prototype, "selectedTagElement", void 0);
+__decorate([
+    i$6('#history')
+], LangRoutes.prototype, "historyBox", void 0);
+__decorate([
+    i$6('search-panel')
+], LangRoutes.prototype, "searchPanel", void 0);
 LangRoutes = __decorate([
     n$1('lang-routes')
 ], LangRoutes);

@@ -50,9 +50,9 @@ export class QuickSearch extends LitElement {
   constructor () {
     super()
 
-    window.addEventListener('searched', (e: Event) => {
-      this.addToHistory((e as CustomEvent).detail.query);
-    })
+    // window.addEventListener('searched', (e: Event) => {
+    //   this.addToHistory((e as CustomEvent).detail.query);
+    // })
 
     let _blurTimestamp: number|undefined = undefined;
     let _focusDebouncer: NodeJS.Timeout|undefined = undefined;
@@ -215,7 +215,7 @@ export class QuickSearch extends LitElement {
     anchor.click()
   }
 
-  saveHistory () {
+  private saveHistory () {
     localStorage.setItem('lang-routes:history', JSON.stringify(this.history))
     this.requestUpdate()
   }

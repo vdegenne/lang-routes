@@ -7,6 +7,7 @@ import { Dialog } from '@material/mwc-dialog';
 export class SettingsDialog extends LitElement {
   @state()
   public fontSize: number = 12;
+  @state() public maxHeight = 100;
 
   @query('mwc-dialog') dialog!: Dialog;
 
@@ -35,6 +36,17 @@ export class SettingsDialog extends LitElement {
           min="12"
           max="70"
           @input=${(e) => this.onSliderInput(e)}
+        >
+        </mwc-slider>
+      </div>
+
+      <div>
+        <span>Tags container max-height (${this.maxHeight}px)</span>
+        <mwc-slider
+          value=${this.maxHeight}
+          min="100"
+          max="500"
+          @input=${(e) => { this.maxHeight = e.detail.value; window.app.requestUpdate(); this.save() }}
         >
         </mwc-slider>
       </div>

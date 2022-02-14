@@ -12,6 +12,7 @@ import { SearchPanel } from './search-panel'
 import { live } from 'lit/directives/live.js'
 import './settings-dialog'
 import './global-declarations'
+import { TagElement } from './tag-element'
 
 
 @customElement('lang-routes')
@@ -27,7 +28,8 @@ export class LangRoutes extends LitElement {
 
   @query('textarea') _textarea!: HTMLTextAreaElement;
   @query('#textContainer') _textContainer!: HTMLParagraphElement;
-  @query('search-panel') searchPanel!: SearchPanel;
+  @query('tag-element[selected]') selectedTagElement!: TagElement;
+  // @query('search-panel') searchPanel!: SearchPanel;
 
   constructor() {
     super()
@@ -47,7 +49,7 @@ export class LangRoutes extends LitElement {
         window.quickSearch.searchPanel.sendKey(e.key)
       }
       else {
-        this.searchPanel.sendKey(e.key)
+        // this.searchPanel.sendKey(e.key)
       }
     })
   }
@@ -84,11 +86,13 @@ export class LangRoutes extends LitElement {
   static styles = [
     css`
     :host {
-      display: flex;
-      flex-direction: column;
+      /* display: flex;
+      flex-direction: column; */
       /* align-items: center; */
       /* width:-webkit-fill-available; */
       height: 85%;
+      max-width: 600px;
+      margin: 0 auto;
     }
     [hide] {
       display:none;
@@ -146,12 +150,18 @@ export class LangRoutes extends LitElement {
       outline:none;
       border: 0px;
     }
+
+    #tags {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 22px;
+    }
     `
   ]
 
   public loadDocument (document: Document) {
     window.location.hash = document.id.toString()
-    this._locked = document.content !== ''
+    this._locked = document.content.length === 0
   }
 
   render () {
@@ -166,7 +176,10 @@ export class LangRoutes extends LitElement {
       `
     }
 
-    const doc = this.currentDocument
+    let doc = this.currentDocument
+    if (!(doc.content instanceof Array)) {
+      doc.content = [doc.content]
+    }
 
     /* If there is a selected document (from the hash) */
     return html`
@@ -188,18 +201,36 @@ export class LangRoutes extends LitElement {
       </div>
     </header>
 
-    <textarea ?hide=${this._locked} ?disabled=${this._locked} .value=${doc.content} style="font-size:${window.settingsDialog.fontSize}px"
-      @keyup=${e => this.onTextAreaChange(e)} placeholder="empty"></textarea>
-    <div ?hide=${!this._locked} style="overflow-y:scroll;font-size:${window.settingsDialog.fontSize}px" id="textContainer">
-      <span style="white-space:pre-wrap">${doc.content}</span>
+    <center>
+    <mwc-button raised
+      @click=${() => { window.tagDialog.open() }}>add a tag</mwc-button>
+    </center>
+
+    <div id="tags">
+    ${doc.content.map(tag => {
+      return html`<tag-element content=${tag}></tag-element>`
+    })}
     </div>
 
-    <input id="selectInput" ?hide=${!this._selected} .value=${live(this._selected)}
-      @keyup=${(e) => { this.searchPanel.query = e.target.value }}>
+    <!-- <div ?hide=${!this._locked} style="overflow-y:scroll;font-size:${window.settingsDialog.fontSize}px" id="textContainer">
+      <span style="white-space:pre-wrap">${doc.content}</span>
+    </div> -->
 
-    <search-panel .query=${live(this._selected)}></search-panel>
+    <!-- <search-panel .query=${live(this._selected)}></search-panel> -->
 
+    <mwc-icon-button icon="search" style="margin-left:24px"
+      ?disabled=${this.selectedTagElement === null}
+      @click=${() => { this.onSearchClick() }}></mwc-icon-button>
     `
+  }
+
+  private onSearchClick() {
+    const tagEl = this.selectedTagElement
+    if (tagEl) {
+      window.quickSearch.query = tagEl.content;
+      window.quickSearch.search()
+    }
+    window.quickSearch.open()
   }
 
   private _textAreaDebouncer?: NodeJS.Timeout;
@@ -232,7 +263,7 @@ export class LangRoutes extends LitElement {
     const doc: Document = {
       id: this.nextId,
       title: 'Untitled Document',
-      content: ''
+      content: []
     }
 
     this._documents.push(doc)
@@ -260,7 +291,7 @@ export class LangRoutes extends LitElement {
     }
   }
 
-  private save () {
+  public save () {
     // Try to save the data remotely
     try {
       fetch('/data', {

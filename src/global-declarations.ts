@@ -6,6 +6,9 @@ import { StrokesDialog } from './strokes-dialog';
 import { QuickSearch } from './quick-search';
 import { DataManager } from './DataManager';
 import './DataManager'
+import './tag-dialog'
+import { TagDialog } from './tag-dialog';
+import './tag-element'
 
 declare global {
   interface Window {
@@ -15,5 +18,6 @@ declare global {
     strokesDialog: StrokesDialog;
     quickSearch: QuickSearch;
     dataManager: DataManager;
+    tagDialog: TagDialog;
   }
 }

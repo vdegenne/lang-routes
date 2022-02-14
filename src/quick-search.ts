@@ -18,7 +18,7 @@ export class QuickSearch extends LitElement {
   @query('search-panel') searchPanel!: SearchPanel;
   @query('#history') historyBox!: HTMLDivElement;
 
-  @state() private query = '';
+  @state() public query = '';
 
   private history: string[] = localStorage.getItem('lang-routes:history') ? JSON.parse(localStorage.getItem('lang-routes:history')!.toString()) : []
 
@@ -67,15 +67,17 @@ export class QuickSearch extends LitElement {
       _blurTimestamp = Date.now()
     })
 
-    console.log('created')
     window.addEventListener('focus', (e) => {
+      if (!navigator.userAgent.includes('Whale')) {
+        return;
+      }
       _focusDebouncer = setTimeout(() => {
         // We take advantage of one breach in Whale browser
         // When the application is in the sidebar, on tab closing
         // the blur event listener is triggered again.
         // We use this behavior to avoid textfield focus other than
         // toggling the sidebar on and off
-        console.log(Date.now() - _blurTimestamp!)
+        // console.log(Date.now() - _blurTimestamp!)
         if (_blurTimestamp && (Date.now() - _blurTimestamp < 1000)) {
           return;
         }
@@ -91,7 +93,7 @@ export class QuickSearch extends LitElement {
 
   render () {
     return html`
-      <mwc-dialog scrimClickAction="">
+      <mwc-dialog scrimClickAction="" escapeKeyAction="">
         <div style="display:flex;align-items:flex-start">
           <mwc-textfield placeholder="search"
             helperPersistent
@@ -195,7 +197,7 @@ export class QuickSearch extends LitElement {
   }
 
   open () {
-    window.app.searchPanel.closeAllMenus()
+    // window.app.searchPanel.closeAllMenus()
     this._dialog.show()
   }
 

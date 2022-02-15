@@ -22153,6 +22153,7 @@ let LangRoutes = class LangRoutes extends s$1 {
                 return;
             }
             this.currentDocument.content.push(this.textfield.value);
+            this.save();
             this.requestUpdate();
         }
     }

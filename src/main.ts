@@ -332,6 +332,7 @@ export class LangRoutes extends LitElement {
         return
       }
       this.currentDocument!.content.push(this.textfield.value)
+      this.save()
       this.requestUpdate()
     }
   }

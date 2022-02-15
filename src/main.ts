@@ -86,6 +86,7 @@ export class LangRoutes extends LitElement {
         if (_blurTimestamp && (Date.now() - _blurTimestamp < 1000)) {
           return;
         }
+        this.query = ''
         this.textfield.focus()
       }, 500)
     })

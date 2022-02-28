@@ -21995,36 +21995,41 @@ let LangRoutes = class LangRoutes extends s$1 {
                 this.searchPanel.sendKey(e.key);
             }
         });
-        let _blurTimestamp = undefined;
-        let _focusDebouncer = undefined;
-        const clearFocusDebouncer = function () {
-            if (_focusDebouncer) {
-                clearTimeout(_focusDebouncer);
-                _focusDebouncer = undefined;
+        window.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key === 'l') {
+                this.onCloseIconClick();
             }
-        };
-        window.addEventListener('blur', (e) => {
-            clearFocusDebouncer();
-            _blurTimestamp = Date.now();
         });
-        window.addEventListener('focus', (e) => {
-            if (!navigator.userAgent.includes('Whale')) {
-                return;
-            }
-            _focusDebouncer = setTimeout(() => {
-                // We take advantage of one breach in Whale browser
-                // When the application is in the sidebar, on tab closing
-                // the blur event listener is triggered again.
-                // We use this behavior to avoid textfield focus other than
-                // toggling the sidebar on and off
-                // console.log(Date.now() - _blurTimestamp!)
-                if (_blurTimestamp && (Date.now() - _blurTimestamp < 1000)) {
-                    return;
-                }
-                this.query = '';
-                this.textfield.focus();
-            }, 500);
-        });
+        // let _blurTimestamp: number|undefined = undefined;
+        // let _focusDebouncer: NodeJS.Timeout|undefined = undefined;
+        // const clearFocusDebouncer = function () {
+        //   if (_focusDebouncer) {
+        //     clearTimeout(_focusDebouncer)
+        //     _focusDebouncer = undefined
+        //   }
+        // }
+        // window.addEventListener('blur', (e) => {
+        //   clearFocusDebouncer()
+        //   _blurTimestamp = Date.now()
+        // })
+        // window.addEventListener('focus', (e) => {
+        //   if (!navigator.userAgent.includes('Whale')) {
+        //     return;
+        //   }
+        //   _focusDebouncer = setTimeout(() => {
+        //     // We take advantage of one breach in Whale browser
+        //     // When the application is in the sidebar, on tab closing
+        //     // the blur event listener is triggered again.
+        //     // We use this behavior to avoid textfield focus other than
+        //     // toggling the sidebar on and off
+        //     // console.log(Date.now() - _blurTimestamp!)
+        //     if (_blurTimestamp && (Date.now() - _blurTimestamp < 1000)) {
+        //       return;
+        //     }
+        //     this.query = ''
+        //     this.textfield.focus()
+        //   }, 500)
+        // })
     }
     get currentDocument() {
         if (window.location.hash.slice(1) === '')
@@ -22070,7 +22075,7 @@ let LangRoutes = class LangRoutes extends s$1 {
         if (!(doc.content instanceof Array)) {
             doc.content = [doc.content];
         }
-        console.log(`rendered : ${this.query}`);
+        // console.log(`rendered : ${this.query}`)
         /* If there is a selected document (from the hash) */
         return p `
     <header id="topbar">
@@ -22120,8 +22125,10 @@ let LangRoutes = class LangRoutes extends s$1 {
           @click=${() => { this.onCloseIconClick(); }}></mwc-icon-button>
       </div>
 
-      <search-panel .query=${l$1(this.query)}></search-panel>
+      <search-panel .query=${l$1(this.query)}
+        @closed=${() => { setTimeout(() => this.textfield.blur(), 40); }}></search-panel>
       <mwc-button outlined icon="label" label="add search to tags" ?disabled=${!this.query}
+        style="margin-left:12px"
         @click=${() => { this.addInputAsATag(); }}></mwc-button>
     </div>
 
@@ -22394,6 +22401,7 @@ LangRoutes.styles = [
       margin: 3px;
       cursor: pointer;
       border-radius: 4px;
+      white-space: nowrap;
     }
     .query[selected] {
       background-color: #ffee58 !important;
@@ -22404,7 +22412,7 @@ LangRoutes.styles = [
     }
 
     .card {
-      box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+      box-shadow: rgb(0 0 0 / 8%) 0px 11px 15px -7px, rgb(0 0 0 / 5%) 0px 24px 38px 3px, rgb(0 0 0 / 9%) 0px 9px 46px 8px;
       overflow: auto;
       border-radius: 5px;
       border: 1px solid #00000029;

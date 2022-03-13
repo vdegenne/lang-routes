@@ -288,7 +288,7 @@ export class SearchPanel extends LitElement {
         if (this.menus[2] !== opened)
           this.menus[2].anchor!.click()
       break;
-      case 'i':
+      case 'a':
         this.shadowRoot!.querySelectorAll('mwc-icon-button')[1].click()
       default:
         return;

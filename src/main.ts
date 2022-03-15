@@ -408,7 +408,7 @@ export class LangRoutes extends LitElement {
     if (e.key === 'Enter') {
       this.search()
       this.textfield.blur()
-      this.searchPanel.openFirstSearch()
+      // this.searchPanel.openFirstSearch()
       return;
     }
     this.onTextFieldChange()

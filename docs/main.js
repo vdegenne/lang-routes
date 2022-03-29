@@ -22119,7 +22119,9 @@ let LangRoutes = class LangRoutes extends s$1 {
 
       <div id="tags" style="max-height:${window.settingsDialog.maxHeight}px">
       ${doc.content.map(tag => {
-            return p `<tag-element .content=${tag}
+            return p `
+        <tag-element .content=${tag}
+          style="font-size:${window.settingsDialog.fontSize}px"
           @click=${async (e) => { this.query = tag; await this.updateComplete; this.search(); }}></tag-element>`;
         })}
       </div>

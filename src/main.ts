@@ -12,7 +12,7 @@ import { SearchPanel } from './search-panel'
 import { live } from 'lit/directives/live.js'
 import './settings-dialog'
 import './global-declarations'
-import { TagElement } from './tag-element'
+import { deselectAllTag, TagElement } from './tag-element'
 import { TextField } from '@material/mwc-textfield'
 import { hasChinese, isFullJapanese } from 'asian-regexps'
 import html2canvas from 'html2canvas'
@@ -226,7 +226,8 @@ export class LangRoutes extends LitElement {
     }
 
     .card {
-      box-shadow: rgb(0 0 0 / 8%) 0px 11px 15px -7px, rgb(0 0 0 / 5%) 0px 24px 38px 3px, rgb(0 0 0 / 9%) 0px 9px 46px 8px;
+      /* box-shadow: rgb(0 0 0 / 8%) 0px 11px 15px -7px, rgb(0 0 0 / 5%) 0px 24px 38px 3px, rgb(0 0 0 / 9%) 0px 9px 46px 8px; */
+      box-shadow: rgb(0 0 0 / 8%) 0px 11px 15px -7px, rgb(0 0 0 / 5%) 0px 24px 38px 3px, #00000000 0px 9px 46px 8px;
       overflow: auto;
       border-radius: 5px;
       border: 1px solid #00000029;
@@ -280,15 +281,19 @@ export class LangRoutes extends LitElement {
       </div>
     </header>
 
+    <!-- TAGS CARD -->
     <div class=card>
-      <div style="margin:12px;text-align:right">
+      <div style="margin:12px;display:flex;justify-content:space-between">
       <mwc-button icon="label" unelevated
-        @click=${() => { window.tagDialog.open() }}>add a tag</mwc-button>
+        @click=${() => { window.tagDialog.open() }}>add</mwc-button>
+      <mwc-button icon=delete outlined style="--mdc-theme-primary:red"
+        ?disabled=${this.selectedTagElement === null}
+        @click=${()=>{this.onDeleteTagClick()}}>delete</mwc-button>
       </div>
 
       <div id="tags" style="max-height:${window.settingsDialog.maxHeight}px">
       ${doc.content.map(tag => {
-        return html`<tag-element content=${tag}
+        return html`<tag-element .content=${tag}
           @click=${async (e) => { this.query = tag; await this.updateComplete; this.search() }}></tag-element>`
       })}
       </div>
@@ -311,9 +316,11 @@ export class LangRoutes extends LitElement {
 
       <search-panel .query=${live(this.query)}
         @closed=${() => { setTimeout(() => this.textfield.blur(), 40) }}></search-panel>
-      <mwc-button outlined icon="label" label="add search to tags" ?disabled=${!this.query}
-        style="margin-left:12px"
-        @click=${() => { this.addInputAsATag() }}></mwc-button>
+      <div style="text-align:right">
+        <mwc-button outlined icon="label" label="add" ?disabled=${!this.query}
+          style="margin-left:12px"
+          @click=${() => { this.addInputAsATag() }}></mwc-button>
+      </div>
     </div>
 
 
@@ -333,6 +340,18 @@ export class LangRoutes extends LitElement {
       </div>
     </div>
     `
+  }
+
+  onDeleteTagClick () {
+    // get the tag content
+    const tag = this.selectedTagElement.content
+    // get the current document
+    const currentDocument = this.currentDocument!
+    // delete the tag from the document
+    currentDocument.content.splice(currentDocument.content.indexOf(tag), 1)
+    deselectAllTag()
+    this.requestUpdate()
+    this.save()
   }
 
   addInputAsATag () {

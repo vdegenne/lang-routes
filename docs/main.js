@@ -6121,6 +6121,11 @@ function mdbgSearch(word) {
         return;
     window.open(`https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=${encodeURIComponent(word)}`, '_blank');
 }
+function humanumSearch(word) {
+    if (!word)
+        return;
+    window.open(`https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/search.php?word=${encodeURIComponent(word)}`, '_blank');
+}
 function googleTranslateSearch(word) {
     if (!word)
         return;
@@ -10926,6 +10931,13 @@ let SearchPanel = class SearchPanel extends s$1 {
           <img src="./img/writtenchinese.png" slot="graphic">
           <span>WrittenChinese</span>
         </mwc-list-item>
+
+        <!-- Humanum -->
+        <mwc-list-item graphic="icon" openKey="h" @click=${() => { humanumSearch(this.query); }}>
+          <img src="./img/humanum.ico" slot="graphic">
+          <span>Humanum</span>
+        </mwc-list-item>
+
         <mwc-list-item graphic="icon" openKey="s"
           @click=${() => {
             if (!isFullChinese(this.query)) {
@@ -21925,37 +21937,33 @@ let TagElement = class TagElement extends s$1 {
     }
     firstUpdated(_changedProperties) {
         this.addEventListener('click', (e) => {
-            tags.forEach(el => el.selected = false);
+            deselectAllTag();
+            // tags.forEach(el => el.selected = false)
             this.selected = true;
-            // window.app.requestUpdate()
+            window.app.requestUpdate();
             e.stopPropagation();
         });
     }
 };
 TagElement.styles = r$3 `
   :host {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 2px;
-    box-shadow: 2px 2px 7px -3px #0000004f;
-    cursor: pointer;
-    background-color: #37474f;
-    color: white;
-    margin: 4px;
-
-    display: inline-block;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     padding: 3px 8px;
-    border-radius: 6px;
-    box-shadow: rgb(0 0 0 / 31%) 2px 2px 7px -3px;
-    cursor: pointer;
-    background-color: rgb(55, 71, 79);
-    color: white;
     margin: 3px;
+    background-color: #6a1b9a;
+    font-size: 16px;
+    font-weight: 300;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    /* box-shadow: rgb(0 0 0 / 31%) 2px 2px 7px -3px; */
   }
 
   :host([selected]) {
-    background-color: yellow;
-    color: black;
+    background-color: yellow !important;
+    color: black !important;
   }
   `;
 __decorate([
@@ -21967,6 +21975,9 @@ __decorate([
 TagElement = __decorate([
     n$1('tag-element')
 ], TagElement);
+function deselectAllTag() {
+    tags.forEach(el => el.selected = false);
+}
 // window.document.body.addEventListener('click', () => {
 //   tags.forEach(el => el.selected = false)
 //   window.app.requestUpdate()
@@ -22096,15 +22107,19 @@ let LangRoutes = class LangRoutes extends s$1 {
       </div>
     </header>
 
+    <!-- TAGS CARD -->
     <div class=card>
-      <div style="margin:12px;text-align:right">
+      <div style="margin:12px;display:flex;justify-content:space-between">
       <mwc-button icon="label" unelevated
-        @click=${() => { window.tagDialog.open(); }}>add a tag</mwc-button>
+        @click=${() => { window.tagDialog.open(); }}>add</mwc-button>
+      <mwc-button icon=delete outlined style="--mdc-theme-primary:red"
+        ?disabled=${this.selectedTagElement === null}
+        @click=${() => { this.onDeleteTagClick(); }}>delete</mwc-button>
       </div>
 
       <div id="tags" style="max-height:${window.settingsDialog.maxHeight}px">
       ${doc.content.map(tag => {
-            return p `<tag-element content=${tag}
+            return p `<tag-element .content=${tag}
           @click=${async (e) => { this.query = tag; await this.updateComplete; this.search(); }}></tag-element>`;
         })}
       </div>
@@ -22127,9 +22142,11 @@ let LangRoutes = class LangRoutes extends s$1 {
 
       <search-panel .query=${l$1(this.query)}
         @closed=${() => { setTimeout(() => this.textfield.blur(), 40); }}></search-panel>
-      <mwc-button outlined icon="label" label="add search to tags" ?disabled=${!this.query}
-        style="margin-left:12px"
-        @click=${() => { this.addInputAsATag(); }}></mwc-button>
+      <div style="text-align:right">
+        <mwc-button outlined icon="label" label="add" ?disabled=${!this.query}
+          style="margin-left:12px"
+          @click=${() => { this.addInputAsATag(); }}></mwc-button>
+      </div>
     </div>
 
 
@@ -22153,6 +22170,17 @@ let LangRoutes = class LangRoutes extends s$1 {
       </div>
     </div>
     `;
+    }
+    onDeleteTagClick() {
+        // get the tag content
+        const tag = this.selectedTagElement.content;
+        // get the current document
+        const currentDocument = this.currentDocument;
+        // delete the tag from the document
+        currentDocument.content.splice(currentDocument.content.indexOf(tag), 1);
+        deselectAllTag();
+        this.requestUpdate();
+        this.save();
     }
     addInputAsATag() {
         if (this.textfield.value !== '') {
@@ -22225,7 +22253,7 @@ let LangRoutes = class LangRoutes extends s$1 {
         if (e.key === 'Enter') {
             this.search();
             this.textfield.blur();
-            this.searchPanel.openFirstSearch();
+            // this.searchPanel.openFirstSearch()
             return;
         }
         this.onTextFieldChange();
@@ -22412,7 +22440,8 @@ LangRoutes.styles = [
     }
 
     .card {
-      box-shadow: rgb(0 0 0 / 8%) 0px 11px 15px -7px, rgb(0 0 0 / 5%) 0px 24px 38px 3px, rgb(0 0 0 / 9%) 0px 9px 46px 8px;
+      /* box-shadow: rgb(0 0 0 / 8%) 0px 11px 15px -7px, rgb(0 0 0 / 5%) 0px 24px 38px 3px, rgb(0 0 0 / 9%) 0px 9px 46px 8px; */
+      box-shadow: rgb(0 0 0 / 8%) 0px 11px 15px -7px, rgb(0 0 0 / 5%) 0px 24px 38px 3px, #00000000 0px 9px 46px 8px;
       overflow: auto;
       border-radius: 5px;
       border: 1px solid #00000029;

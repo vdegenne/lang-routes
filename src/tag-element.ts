@@ -18,28 +18,23 @@ export class TagElement extends LitElement {
 
   static styles = css`
   :host {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 2px;
-    box-shadow: 2px 2px 7px -3px #0000004f;
-    cursor: pointer;
-    background-color: #37474f;
-    color: white;
-    margin: 4px;
-
-    display: inline-block;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     padding: 3px 8px;
-    border-radius: 6px;
-    box-shadow: rgb(0 0 0 / 31%) 2px 2px 7px -3px;
-    cursor: pointer;
-    background-color: rgb(55, 71, 79);
-    color: white;
     margin: 3px;
+    background-color: #6a1b9a;
+    font-size: 16px;
+    font-weight: 300;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    /* box-shadow: rgb(0 0 0 / 31%) 2px 2px 7px -3px; */
   }
 
   :host([selected]) {
-    background-color: yellow;
-    color: black;
+    background-color: yellow !important;
+    color: black !important;
   }
   `
 
@@ -47,14 +42,20 @@ export class TagElement extends LitElement {
     return html`${this.content}`
   }
 
+
   protected firstUpdated(_changedProperties: Map<string | number | symbol, unknown>): void {
     this.addEventListener('click', (e) => {
-      tags.forEach(el => el.selected = false)
+      deselectAllTag()
+      // tags.forEach(el => el.selected = false)
       this.selected = true;
-      // window.app.requestUpdate()
+      window.app.requestUpdate()
       e.stopPropagation()
     })
   }
+}
+
+export function deselectAllTag () {
+  tags.forEach(el=>el.selected=false)
 }
 
 // window.document.body.addEventListener('click', () => {

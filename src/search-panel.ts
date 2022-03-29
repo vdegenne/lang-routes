@@ -1,6 +1,6 @@
 import { customElement, property, queryAll } from 'lit/decorators.js';
 import '@material/mwc-button'
-import { googleImagesSearch, googleTranslateSearch, isKanji, jishoSearch, mdbgSearch, naverHanjaSearch, naverJapSearch, naverKoreanSearch, writtenChineseSearch } from './util';
+import { googleImagesSearch, googleTranslateSearch, humanumSearch, isKanji, jishoSearch, mdbgSearch, naverHanjaSearch, naverJapSearch, naverKoreanSearch, writtenChineseSearch } from './util';
 import { css, html, LitElement } from 'lit';
 import { chineseFullRegExp, isFullChinese, isFullJapanese } from 'asian-regexps';
 import '@material/mwc-select'
@@ -116,6 +116,13 @@ export class SearchPanel extends LitElement {
           <img src="./img/writtenchinese.png" slot="graphic">
           <span>WrittenChinese</span>
         </mwc-list-item>
+
+        <!-- Humanum -->
+        <mwc-list-item graphic="icon" openKey="h" @click=${() => { humanumSearch(this.query) }}>
+          <img src="./img/humanum.ico" slot="graphic">
+          <span>Humanum</span>
+        </mwc-list-item>
+
         <mwc-list-item graphic="icon" openKey="s"
           @click=${() => {
             if (!isFullChinese(this.query)) {

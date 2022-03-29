@@ -49,6 +49,13 @@ export function mdbgSearch (word: string) {
   window.open(`https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=${encodeURIComponent(word)}`, '_blank')
 }
 
+export function humanumSearch (word: string) {
+  if (!word) return
+  window.open(`https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/search.php?word=${encodeURIComponent(word)}`, '_blank')
+}
+
+
+
 export function googleTranslateSearch (word:string) {
   if (!word) return
   window.open(`https://translate.google.com/?sl=auto&text=${encodeURIComponent(word)}&op=translate`, '_blank')

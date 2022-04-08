@@ -303,7 +303,8 @@ export class LangRoutes extends LitElement {
       <div id="tags" style="max-height:${window.settingsDialog.maxHeight}px">
       ${doc.content.map(tag => {
         return html`
-        <tag-element content=${tag}
+        <!-- TAG ELEMENT -->
+        <tag-element .content=${tag}
           style="font-size:${window.settingsDialog.fontSize}px"
           @click=${async (e) => { this.query = tag; await this.updateComplete; this.search() }}></tag-element>`
       })}

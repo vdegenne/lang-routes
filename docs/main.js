@@ -1756,7 +1756,7 @@ const cu=iA`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
       <mwc-button unelevated slot="primaryAction"
         ?disabled=${!this.tagValue||A}
         @click=${()=>{this.submit()}}>${this.type}</mwc-button>
-    `,this.dialog),this.dialog}submit(){window.app.currentDocument.content.push(this.tagValue),this.tagValue="",this.dialog.close(),window.app.save(),window.app.requestUpdate()}onTextAreaKeyup(A){const e=this.shadowRoot.querySelector("mwc-button[slot=primaryAction]");!A.ctrlKey||"Enter"!==A.key||""===this.tagValue||e.disabled?this.tagValue=this.textarea.value:e.click()}open(){this.requestUpdate(),this.dialog.show()}};i([bA()],uu.prototype,"type",void 0),i([bA()],uu.prototype,"tagValue",void 0),i([xA("mwc-textarea")],uu.prototype,"textarea",void 0),uu=i([fA("tag-dialog")],uu);let pu=class extends mA{constructor(){super(),this.content="",this.selected=!1}render(){return k`
+    `,this.dialog),this.dialog}submit(){window.app.currentDocument.content.push(this.tagValue),this.tagValue="",this.dialog.close(),window.app.save(),window.app.requestUpdate()}onTextAreaKeyup(A){const e=this.shadowRoot.querySelector("mwc-button[slot=primaryAction]");!A.ctrlKey||"Enter"!==A.key||""===this.tagValue||e.disabled?this.tagValue=this.textarea.value:e.click()}open(){this.requestUpdate(),this.dialog.show()}};i([bA()],uu.prototype,"type",void 0),i([bA()],uu.prototype,"tagValue",void 0),i([xA("mwc-textarea")],uu.prototype,"textarea",void 0),uu=i([fA("tag-dialog")],uu);let pu=class extends mA{constructor(){super(),this._content="",this.selected=!1,this.group="0"}set content(A){this._content=A}get content(){return this._content.replace(/^([0-9]*):/,"")}render(){const A=this._content.match(/^([0-9]*):/);return A&&(this.group=A[1]),k`
     <mwc-menu fixed @click=${A=>{A.stopImmediatePropagation()}}>
       <mwc-list-item noninteractive>
         <span>${this.content}</span>
@@ -1773,12 +1773,12 @@ const cu=iA`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
       </mwc-list-item>
       <li divider role="separator" padded></li>
       <mwc-list-item graphic=icon
-          @click=${()=>{window.app.editTag(this.content)}}>
+          @click=${()=>{window.app.editTag(this._content)}}>
         <span>edit</span>
         <mwc-icon slot=graphic>edit</mwc-icon>
       </mwc-list-item>
       <mwc-list-item graphic=icon style="color:red"
-          @click=${()=>{window.app.deleteTag(this.content)}}>
+          @click=${()=>{window.app.deleteTag(this._content)}}>
         <span>delete</span>
         <mwc-icon slot=graphic style="color:red">delete</mwc-icon>
       </mwc-list-item>
@@ -1804,7 +1804,11 @@ const cu=iA`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
     background-color: yellow !important;
     color: black !important;
   }
-  `,i([wA()],pu.prototype,"content",void 0),i([wA({type:Boolean,reflect:!0})],pu.prototype,"selected",void 0),i([xA("mwc-menu")],pu.prototype,"menu",void 0),pu=i([fA("tag-element")],pu);let hu=class extends mA{constructor(){super(),this._locked=!0,this._documents=[],this.query="",this.history=localStorage.getItem("lang-routes:history")?JSON.parse(localStorage.getItem("lang-routes:history").toString()):[],this.load().then((()=>{if(""==location.hash){let A=localStorage.getItem("lang-routes:lastdoc");A||(A=""+this._documents[0].id),window.location.hash=A}})),window.addEventListener("hashchange",(A=>{window.location.hash&&localStorage.setItem("lang-routes:lastdoc",window.location.hash.slice(1)),this.requestUpdate()})),window.addEventListener("keydown",(A=>{A.composedPath()[0]instanceof HTMLTextAreaElement||A.composedPath()[0]instanceof HTMLInputElement||(window.quickSearch.opened?window.quickSearch.searchPanel.sendKey(A.key):this.searchPanel.sendKey(A.key))})),window.addEventListener("keydown",(A=>{A.altKey&&"l"===A.key&&this.onCloseIconClick()}))}get currentDocument(){if(""!==window.location.hash.slice(1))return this._documents.find((A=>parseInt(window.location.hash.slice(1))===A.id))}firstUpdated(){window.addEventListener("keyup",(A=>{"Enter"===A.key&&this._locked&&this.query}))}loadDocument(A){window.location.hash=A.id.toString(),this._locked=0===A.content.length}render(){if(void 0===this.currentDocument)return k`
+  :host([group="1"]) { background-color: #ffc107 }
+  :host([group="2"]) { background-color: #4caf50 }
+  :host([group="3"]) { background-color: #3f51b5 }
+  :host([group="4"]) { background-color: #f44336 }
+  `,i([wA()],pu.prototype,"_content",void 0),i([wA({type:Boolean,reflect:!0})],pu.prototype,"selected",void 0),i([wA({reflect:!0})],pu.prototype,"group",void 0),i([xA("mwc-menu")],pu.prototype,"menu",void 0),pu=i([fA("tag-element")],pu);let hu=class extends mA{constructor(){super(),this._locked=!0,this._documents=[],this.query="",this.history=localStorage.getItem("lang-routes:history")?JSON.parse(localStorage.getItem("lang-routes:history").toString()):[],this.load().then((()=>{if(""==location.hash){let A=localStorage.getItem("lang-routes:lastdoc");A||(A=""+this._documents[0].id),window.location.hash=A}})),window.addEventListener("hashchange",(A=>{window.location.hash&&localStorage.setItem("lang-routes:lastdoc",window.location.hash.slice(1)),this.requestUpdate()})),window.addEventListener("keydown",(A=>{A.composedPath()[0]instanceof HTMLTextAreaElement||A.composedPath()[0]instanceof HTMLInputElement||(window.quickSearch.opened?window.quickSearch.searchPanel.sendKey(A.key):this.searchPanel.sendKey(A.key))})),window.addEventListener("keydown",(A=>{A.altKey&&"l"===A.key&&this.onCloseIconClick()}))}get currentDocument(){if(""!==window.location.hash.slice(1))return this._documents.find((A=>parseInt(window.location.hash.slice(1))===A.id))}firstUpdated(){window.addEventListener("keyup",(A=>{"Enter"===A.key&&this._locked&&this.query}))}loadDocument(A){window.location.hash=A.id.toString(),this._locked=0===A.content.length}render(){if(void 0===this.currentDocument)return k`
       ${this._documents.map((A=>k`<div class="document"
           @click=${()=>this.loadDocument(A)}><mwc-icon>description</mwc-icon><span>${A.title}</span></div>`))}
       <mwc-button unelevated icon="add"
@@ -1836,7 +1840,8 @@ const cu=iA`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
 
       <div id="tags" style="max-height:${window.settingsDialog.maxHeight}px">
       ${A.content.map((A=>k`
-        <tag-element content=${A}
+        <!-- TAG ELEMENT -->
+        <tag-element .content=${A}
           style="font-size:${window.settingsDialog.fontSize}px"
           @click=${async e=>{this.query=A,await this.updateComplete,this.search()}}></tag-element>`))}
       </div>

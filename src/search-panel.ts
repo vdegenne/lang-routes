@@ -1,6 +1,6 @@
 import { customElement, property, queryAll } from 'lit/decorators.js';
 import '@material/mwc-button'
-import { googleImagesSearch, googleTranslateSearch, humanumSearch, isKanji, jishoSearch, mdbgSearch, naverHanjaSearch, naverJapSearch, naverKoreanSearch, writtenChineseSearch } from './util';
+import { googleImagesSearch, googleTranslateSearch, humanumSearch, isKanji, jisho, mdbgSearch, naverHanjaSearch, naverJapSearch, naverKoreanSearch, writtenChineseSearch } from './util';
 import { css, html, LitElement } from 'lit';
 import { chineseFullRegExp, isFullChinese, isFullJapanese } from 'asian-regexps';
 import '@material/mwc-select'
@@ -52,7 +52,7 @@ export class SearchPanel extends LitElement {
           @mouseover=${(e) => { this.onButtonMouseOver(e)}}
         >japanese</mwc-button>
         <mwc-menu corner="BOTTOM_START" quick stayOpenOnBodyClick fixed>
-          <mwc-list-item graphic="icon" openKey="j" @click=${() => { jishoSearch(this.query) }}>
+          <mwc-list-item graphic="icon" openKey="j" @click=${() => { jisho(this.query) }}>
             <img src="./img/jisho.ico" slot="graphic">
             <span>Jisho</span>
           </mwc-list-item>
@@ -90,7 +90,7 @@ export class SearchPanel extends LitElement {
         </mwc-menu>
       </div>
 
-      <!-- <mwc-icon-button @click=${() => jishoSearch(this.query)}>
+      <!-- <mwc-icon-button @click=${() => jisho(this.query)}>
         <img src="./img/jisho.ico">
       </mwc-icon-button> -->
 

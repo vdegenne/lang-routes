@@ -29,7 +29,7 @@ export function naverKoreanSearch (word: string) {
   window.open(`https://ko.dict.naver.com/#/search?query=${encodeURIComponent(word)}`, '_blank')
 }
 
-export function jishoSearch (word: string) {
+export function jisho (word: string) {
   if (word === '') return
   window.open(`https://jisho.org/search/${encodeURIComponent(word)}`, '_blank')
 }

@@ -1766,6 +1766,11 @@ const cu=iA`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
         <span>Google Images</span>
         <mwc-icon slot=graphic>image</mwc-icon>
       </mwc-list-item>
+      <mwc-list-item graphic=icon
+          @click=${()=>{ct(this.content)}}>
+        <span>jisho</span>
+        <img src="./img/jisho.ico" slot=graphic>
+      </mwc-list-item>
       <li divider role="separator" padded></li>
       <mwc-list-item graphic=icon
           @click=${()=>{window.app.editTag(this.content)}}>

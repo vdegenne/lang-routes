@@ -3,7 +3,7 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import '@material/mwc-menu'
 import { Menu } from '@material/mwc-menu';
 import '@material/mwc-icon'
-import { googleImagesSearch } from './util';
+import { googleImagesSearch, jisho } from './util';
 
 const tags: TagElement[] = []
 
@@ -53,6 +53,11 @@ export class TagElement extends LitElement {
       <mwc-list-item graphic=icon @click=${()=>{googleImagesSearch(this.content)}}>
         <span>Google Images</span>
         <mwc-icon slot=graphic>image</mwc-icon>
+      </mwc-list-item>
+      <mwc-list-item graphic=icon
+          @click=${()=>{jisho(this.content)}}>
+        <span>jisho</span>
+        <img src="./img/jisho.ico" slot=graphic>
       </mwc-list-item>
       <li divider role="separator" padded></li>
       <mwc-list-item graphic=icon

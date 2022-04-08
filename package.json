@@ -3,6 +3,7 @@
     "@material/mwc-button": "^0.25.3",
     "@material/mwc-circular-progress": "^0.25.3",
     "@material/mwc-dialog": "^0.25.3",
+    "@material/mwc-icon": "^0.25.3",
     "@material/mwc-icon-button": "^0.25.3",
     "@material/mwc-icon-button-toggle": "^0.25.3",
     "@material/mwc-menu": "^0.25.3",
@@ -19,13 +20,16 @@
     "lit": "^2.0.2",
     "prettier": "^2.5.1",
     "rollup": "^2.60.2",
+    "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.3.1",
     "typescript": "^4.5.2"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c --environment minify",
     "watch": "rollup -cw",
-    "browser-sync": "browser-sync ./docs --files docs/main.js --no-notify --no-open"
+    "browser-sync": "browser-sync ./docs --files docs/main.js --no-notify --no-open",
+    "deploy": "git add . && git commit -m \"$(./fruit.js)\" && git push",
+    "buildeploy": "npm run build && npm run deploy"
   },
   "dependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",

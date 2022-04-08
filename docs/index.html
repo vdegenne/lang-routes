@@ -33,10 +33,19 @@
     <script type=module src="./main.js"></script>
 
     <script>
-      window.toast = function (message, timeoutMs = 4000) {
-        snackbar.labelText = message;
-        snackbar.timeoutMs = timeoutMs;
-        snackbar.show()
+      window.toast = function (labelText, timeoutMs = 4000) {
+        snackbar.labelText = labelText;
+        if (timeoutMs >= 4000 || timeoutMs === -1) {
+          snackbar.timeoutMs = timeoutMs;
+          snackbar.open = true;
+        }
+        else {
+          snackbar.timeoutMs = -1;
+          snackbar.open = true;
+          setTimeout(function () {
+            snackbar.close()
+          }, timeoutMs)
+        }
       }
 
       // Service worker

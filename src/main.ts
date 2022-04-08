@@ -40,9 +40,21 @@ export class LangRoutes extends LitElement {
   constructor() {
     super()
 
-    this.load()
+    this.load().then(() => {
+      // we open the first document if it's the welcome page
+      // @TODO we should save the last used document and switch to it
+      if (location.hash == '') {
+        let lastdoc = localStorage.getItem('lang-routes:lastdoc')
+        if (!lastdoc) {
+          lastdoc = ''+this._documents[0].id
+        }
+        window.location.hash = lastdoc
+      }
+    })
 
     window.addEventListener('hashchange', (e) => {
+      if (window.location.hash)
+        localStorage.setItem('lang-routes:lastdoc', window.location.hash.slice(1))
       this.requestUpdate()
     })
 
@@ -284,17 +296,14 @@ export class LangRoutes extends LitElement {
     <!-- TAGS CARD -->
     <div class=card>
       <div style="margin:12px;display:flex;justify-content:space-between">
-      <mwc-button icon="label" unelevated
-        @click=${() => { window.tagDialog.open() }}>add</mwc-button>
-      <mwc-button icon=delete outlined style="--mdc-theme-primary:red"
-        ?disabled=${this.selectedTagElement === null}
-        @click=${()=>{this.onDeleteTagClick()}}>delete</mwc-button>
+        <mwc-button icon="label" unelevated
+          @click=${() => { window.tagDialog.open() }}>add</mwc-button>
       </div>
 
       <div id="tags" style="max-height:${window.settingsDialog.maxHeight}px">
       ${doc.content.map(tag => {
         return html`
-        <tag-element .content=${tag}
+        <tag-element content=${tag}
           style="font-size:${window.settingsDialog.fontSize}px"
           @click=${async (e) => { this.query = tag; await this.updateComplete; this.search() }}></tag-element>`
       })}
@@ -344,14 +353,39 @@ export class LangRoutes extends LitElement {
     `
   }
 
-  onDeleteTagClick () {
-    // get the tag content
-    const tag = this.selectedTagElement.content
-    // get the current document
-    const currentDocument = this.currentDocument!
-    // delete the tag from the document
-    currentDocument.content.splice(currentDocument.content.indexOf(tag), 1)
-    deselectAllTag()
+  deleteTag (tag: string) {
+    if (!confirm(`Are you sure to delete this tag?`)) { return }
+
+    const index = this.currentDocument!.content.indexOf(tag)
+    if (index == -1) {
+      window.toast('tag not found')
+      return;
+    }
+
+    this.currentDocument!.content.splice(index, 1)
+    this.requestUpdate()
+    this.save()
+  }
+
+  editTag (tag: string) {
+    const index = this.currentDocument!.content.indexOf(tag)
+    if (index == -1) {
+      window.toast('tag not found')
+      return;
+    }
+
+    const newValue = prompt('Rename the tag', tag)
+    if (newValue == null || newValue == '') {
+      window.toast('cancelled', 2000)
+      return
+    }
+    if (this.currentDocument!.content.includes(newValue)) {
+      window.toast('This tag already exists')
+      return
+    }
+
+    // renaming
+    this.currentDocument!.content[index] = newValue
     this.requestUpdate()
     this.save()
   }
@@ -501,9 +535,10 @@ export class LangRoutes extends LitElement {
     try {
       this._documents = await (await fetch('/data')).json()
     } catch (e) {
-      this._documents = JSON.parse(localStorage.getItem('documents') || '[]')
+      this._documents = JSON.parse(localStorage.getItem('documents') || '[{"id":0, "title":"Untitled Document","content":[]}]')
     }
   }
+
 
   public save () {
     // Try to save the data remotely
